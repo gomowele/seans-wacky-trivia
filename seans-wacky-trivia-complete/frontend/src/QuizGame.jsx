@@ -30,8 +30,9 @@ export default function QuizGame() {
     signupMusic.currentTime = 0;
 
     const formData = new FormData();
-    formData.append("nickname", nickname);
-    formData.append("icon_url", selectedIcon);
+formData.append("nickname", nickname);
+formData.append("icon_url", selectedIcon);
+
 
 
     const res = await fetch("http://localhost:8000/join", {
