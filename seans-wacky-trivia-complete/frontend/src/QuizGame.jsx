@@ -25,24 +25,25 @@ export default function QuizGame() {
   };
 
   const handleJoin = async () => {
-    if (nickname && selectedIcon) {
-      signupMusic.pause();
-      signupMusic.currentTime = 0;
+  if (nickname && selectedIcon) {
+    signupMusic.pause();
+    signupMusic.currentTime = 0;
 
-      const formData = new FormData();
-      formData.append(\"nickname\", nickname);
-      formData.append(\"icon_url\", selectedIcon);
+    const formData = new FormData();
+    formData.append("nickname", nickname);
+    formData.append("icon_url", selectedIcon);
 
-      const res = await fetch(\"http://localhost:8000/join\", {
-        method: \"POST\",
-        body: formData,
-      });
+    const res = await fetch("http://localhost:8000/join", {
+      method: "POST",
+      body: formData,
+    });
 
-      const data = await res.json();
-      setPlayerId(data.player_id);
-      setJoined(true);
-    }
-  };
+    const data = await res.json();
+    setPlayerId(data.player_id);
+    setJoined(true);
+  }
+};
+
 
   const fetchQuestion = async () => {
     const res = await fetch(\"http://localhost:8000/current-question\");
