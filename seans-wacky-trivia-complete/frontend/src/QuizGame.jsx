@@ -31,8 +31,7 @@ export default function QuizGame() {
 
     const formData = new FormData();
 formData.append("nickname", nickname);
-formData.append("icon_url", selectedIcon);
-
+fromData.append("icon_url", selectedIcon);
 
 
 
