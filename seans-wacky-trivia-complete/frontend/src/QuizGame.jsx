@@ -35,7 +35,7 @@ export default function QuizGame() {
     formData.append("nickname", nickname);
     formData.append("icon_url", selectedIcon);
 
-    const res = await fetch("http://localhost:8000/join", {
+    const res = await fetch("https://trivia-backend-79q3.onrender.com/join", {
       method: "POST",
       body: formData,
     });
@@ -48,7 +48,7 @@ export default function QuizGame() {
 
 
   const fetchQuestion = async () => {
-    const res = await fetch("http://localhost:8000/current-question");
+    const res = await fetch("https://trivia-backend-79q3.onrender.com/current-question");
     const data = await res.json();
     if (data.question) {
       setQuestion(data);
@@ -64,7 +64,7 @@ export default function QuizGame() {
     formData.append("player_id", playerId);
     formData.append("answer_index", index);
 
-    await fetch("http://localhost:8000/submit-answer", {
+    await fetch("https://trivia-backend-79q3.onrender.com/submit-answer", {
       method: "POST",
       body: formData,
     });
@@ -77,7 +77,7 @@ export default function QuizGame() {
     }, 1000);
   };
   const nextQuestion = async () => {
-    const res = await fetch("http://localhost:8000/next-question", {
+    const res = await fetch("https://trivia-backend-79q3.onrender.com/next-question", {
       method: "POST",
     });
     const data = await res.json();
@@ -96,7 +96,7 @@ export default function QuizGame() {
     questionMusic.currentTime = 0;
     resultSound.play();
 
-    const res = await fetch("http://localhost:8000/leaderboard");
+    const res = await fetch("https://trivia-backend-79q3.onrender.com/leaderboard");
     const data = await res.json();
     setLeaderboard(data.top5);
     setWinner(data.winner);
