@@ -35,6 +35,7 @@ formData.append("icon_url", selectedIcon);
 
 
 
+
     const res = await fetch("http://localhost:8000/join", {
       method: "POST",
       body: formData,
