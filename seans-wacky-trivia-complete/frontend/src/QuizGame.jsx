@@ -30,11 +30,11 @@ export default function QuizGame() {
       signupMusic.currentTime = 0;
 
       const formData = new FormData();
-      formData.append("nickname", nickname);
-      formData.append("icon_url", selectedIcon);
+      formData.append(\"nickname\", nickname);
+      formData.append(\"icon_url\", selectedIcon);
 
-      const res = await fetch("http://localhost:8000/join", {
-        method: "POST",
+      const res = await fetch(\"http://localhost:8000/join\", {
+        method: \"POST\",
         body: formData,
       });
 
@@ -45,24 +45,24 @@ export default function QuizGame() {
   };
 
   const fetchQuestion = async () => {
-    const res = await fetch("http://localhost:8000/current-question");
+    const res = await fetch(\"http://localhost:8000/current-question\");
     const data = await res.json();
     if (data.question) {
       setQuestion(data);
       setTimer(10);
       questionMusic.play();
-    } else if (data.status === "finished") {
+    } else if (data.status === \"finished\") {
       fetchLeaderboard();
     }
   };
 
   const submitAnswer = async (index) => {
     const formData = new FormData();
-    formData.append("player_id", playerId);
-    formData.append("answer_index", index);
+    formData.append(\"player_id\", playerId);
+    formData.append(\"answer_index\", index);
 
-    await fetch("http://localhost:8000/submit-answer", {
-      method: "POST",
+    await fetch(\"http://localhost:8000/submit-answer\", {
+      method: \"POST\",
       body: formData,
     });
 
@@ -75,9 +75,9 @@ export default function QuizGame() {
   };
 
   const nextQuestion = async () => {
-    const res = await fetch("http://localhost:8000/next-question", { method: "POST" });
+    const res = await fetch(\"http://localhost:8000/next-question\", { method: \"POST\" });
     const data = await res.json();
-    if (data.status === "ok") {
+    if (data.status === \"ok\") {
       setQuestion(data.question);
       setAnswerSubmitted(false);
       setTimer(10);
@@ -92,7 +92,7 @@ export default function QuizGame() {
     questionMusic.currentTime = 0;
     resultSound.play();
 
-    const res = await fetch("http://localhost:8000/leaderboard");
+    const res = await fetch(\"http://localhost:8000/leaderboard\");
     const data = await res.json();
     setLeaderboard(data.top5);
     setWinner(data.winner);
@@ -138,23 +138,23 @@ export default function QuizGame() {
 
   if (!joined) {
     return (
-      <div className="p-4 space-y-4">
-        <h1 className="text-2xl font-bold text-center">Sean’s Wacky Trivia🤪😎🫡</h1>
+      <div className=\"p-4 space-y-4\">
+        <h1 className=\"text-2xl font-bold text-center\">Sean’s Wacky Trivia🤪😎🫡</h1>
         <input
-          placeholder="Enter your nickname"
+          placeholder=\"Enter your nickname\"
           value={nickname}
           onChange={e => setNickname(e.target.value)}
         />
         <label>
           Upload avatar icons:
-          <input type="file" accept="image/*" multiple onChange={handleIconUpload} />
+          <input type=\"file\" accept=\"image/*\" multiple onChange={handleIconUpload} />
         </label>
         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
           {icons.map((icon, index) => (
             <img
               key={index}
               src={icon}
-              alt="avatar"
+              alt=\"avatar\"
               style={{
                 width: '60px',
                 height: '60px',
@@ -175,12 +175,12 @@ export default function QuizGame() {
 
   if (showResults) {
     return (
-      <div className="p-4 space-y-4">
-        <h1 className="text-2xl font-bold text-center">Game Over!</h1>
-        <h2 className="text-xl font-semibold">Winner: {winner?.nickname}</h2>
-        <div className="space-y-2">
+      <div className=\"p-4 space-y-4\">
+        <h1 className=\"text-2xl font-bold text-center\">Game Over!</h1>
+        <h2 className=\"text-xl font-semibold\">Winner: {winner?.nickname}</h2>
+        <div className=\"space-y-2\">
           {leaderboard.map((player, index) => (
-            <div key={index} className="flex justify-between">
+            <div key={index} className=\"flex justify-between\">
               <span>{player.nickname}</span>
               <span>{Math.round(player.score)}</span>
             </div>
@@ -192,10 +192,10 @@ export default function QuizGame() {
 
   if (question) {
     return (
-      <div className="p-4 space-y-4">
-        <h1 className="text-2xl font-bold text-center">Sean’s Wacky Trivia🤪😎🫡</h1>
-        <div className="space-y-2">
-          <h2 className="text-lg font-bold">{question.question}</h2>
+      <div className=\"p-4 space-y-4\">
+        <h1 className=\"text-2xl font-bold text-center\">Sean’s Wacky Trivia🤪😎🫡</h1>
+        <div className=\"space-y-2\">
+          <h2 className=\"text-lg font-bold\">{question.question}</h2>
           <div>⏱️ {timer}s</div>
           {question.choices.map((choice, idx) => (
             <button
@@ -218,10 +218,9 @@ export default function QuizGame() {
   }
 
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold text-center">Sean’s Wacky Trivia🤪😎🫡</h1>
+    <div className=\"p-4\">
+      <h1 className=\"text-2xl font-bold text-center\">Sean’s Wacky Trivia🤪😎🫡</h1>
       <p>Waiting for the quiz to start...</p>
     </div>
   );
 }
-
