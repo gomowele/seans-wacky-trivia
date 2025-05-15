@@ -24,25 +24,28 @@ export default function QuizGame() {
     setIcons((prev) => [...prev, ...fileURLs]);
   };
 
-  const handleJoin = async () => {
-    if (nickname && selectedIcon) {
-      signupMusic.pause();
-      signupMusic.currentTime = 0;
+ const handleJoin = async () => {
+  if (nickname && selectedIcon) {
+    // Trigger music on user interaction to bypass browser block
+    signupMusic.pause();
+    signupMusic.currentTime = 0;
+    signupMusic.play();
 
-      const formData = new FormData();
-      formData.append("nickname", nickname);
-      formData.append("icon_url", selectedIcon);
+    const formData = new FormData();
+    formData.append("nickname", nickname);
+    formData.append("icon_url", selectedIcon);
 
-      const res = await fetch("http://localhost:8000/join", {
-        method: "POST",
-        body: formData,
-      });
+    const res = await fetch("http://localhost:8000/join", {
+      method: "POST",
+      body: formData,
+    });
 
-      const data = await res.json();
-      setPlayerId(data.player_id);
-      setJoined(true);
-    }
-  };
+    const data = await res.json();
+    setPlayerId(data.player_id);
+    setJoined(true);
+  }
+};
+
 
   const fetchQuestion = async () => {
     const res = await fetch("http://localhost:8000/current-question");
