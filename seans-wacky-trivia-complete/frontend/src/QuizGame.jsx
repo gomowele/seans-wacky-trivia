@@ -113,10 +113,7 @@ export default function QuizGame({ nickname, icon, onReset }) {
   />
   <p>Score: {score}</p>
 </div>
-.answer-section {
-  text-align: center;
-  margin-top: 1rem;
-}
+
 
     </div>
   );
