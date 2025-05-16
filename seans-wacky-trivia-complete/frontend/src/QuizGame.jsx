@@ -2,6 +2,33 @@ import React, { useState, useEffect } from "react";
 
 const API_BASE = "https://trivia-backend-79q3.onrender.com";
 
+const PRELOADED_ICONS = [
+  // Sports
+  { name: "LeBron James", url: "https://upload.wikimedia.org/wikipedia/commons/2/2f/LeBron_James_Lakers.jpg" },
+  { name: "Serena Williams", url: "https://upload.wikimedia.org/wikipedia/commons/4/4c/Serena_Williams_2013_US_Open.jpg" },
+  { name: "Lionel Messi", url: "https://upload.wikimedia.org/wikipedia/commons/8/87/Lionel_Messi_20180626.jpg" },
+  { name: "Michael Jordan", url: "https://upload.wikimedia.org/wikipedia/commons/a/ae/Michael_Jordan_in_2014.jpg" },
+  { name: "Simone Biles", url: "https://upload.wikimedia.org/wikipedia/commons/f/f6/Simone_Biles_Rio_2016e.jpg" },
+  // Music
+  { name: "Taylor Swift", url: "https://upload.wikimedia.org/wikipedia/commons/5/58/Taylor_Swift_3_-_2019.jpg" },
+  { name: "Drake", url: "https://upload.wikimedia.org/wikipedia/commons/9/94/Drake_at_the_2017_Billboard_Music_Awards.jpg" },
+  { name: "Beyoncé", url: "https://upload.wikimedia.org/wikipedia/commons/3/3a/Beyonce_-_Grammy_Awards_2023.jpg" },
+  { name: "Bruno Mars", url: "https://upload.wikimedia.org/wikipedia/commons/1/13/Bruno_Mars_24K_Magic_World_Tour_in_Milan_%281%29.jpg" },
+  { name: "Selena", url: "https://upload.wikimedia.org/wikipedia/commons/5/5c/Selena_Quintanilla_P%C3%A9rez.png" },
+  // Movies
+  { name: "Dwayne Johnson", url: "https://upload.wikimedia.org/wikipedia/commons/e/ed/Dwayne_Johnson_2014.jpg" },
+  { name: "Scarlett Johansson", url: "https://upload.wikimedia.org/wikipedia/commons/9/91/Scarlett_Johansson_by_Gage_Skidmore_2.jpg" },
+  { name: "Tom Hanks", url: "https://upload.wikimedia.org/wikipedia/commons/2/29/Tom_Hanks_TIFF_2019.jpg" },
+  { name: "Zendaya", url: "https://upload.wikimedia.org/wikipedia/commons/6/6e/Zendaya_2023.jpg" },
+  { name: "Keanu Reeves", url: "https://upload.wikimedia.org/wikipedia/commons/b/bc/Keanu_Reeves_%282018%29.jpg" },
+  // Video Games
+  { name: "Mario", url: "https://upload.wikimedia.org/wikipedia/en/a/a9/MarioNSMBUDeluxe.png" },
+  { name: "Lara Croft", url: "https://upload.wikimedia.org/wikipedia/en/e/e5/Lara_Croft_%282013_video_game%29.png" },
+  { name: "Master Chief", url: "https://upload.wikimedia.org/wikipedia/en/e/e0/Master_Chief_in_Halo_5.png" },
+  { name: "Sonic", url: "https://upload.wikimedia.org/wikipedia/en/e/e2/Sonic_the_Hedgehog.png" },
+  { name: "Link", url: "https://upload.wikimedia.org/wikipedia/en/8/8e/Link_BotW.png" }
+];
+
 export default function QuizGame() {
   const [nickname, setNickname] = useState("");
   const [icon, setIcon] = useState(null);
@@ -98,88 +125,28 @@ export default function QuizGame() {
           value={nickname}
           onChange={(e) => setNickname(e.target.value)}
         />
-        <input
-          type="text"
-          placeholder="Enter avatar URL"
-          onChange={(e) => setIcon(e.target.value)}
-        />
-        <button onClick={joinGame} disabled={!nickname || !icon}>
+        <h3>Select Your Icon</h3>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+          {PRELOADED_ICONS.map((iconData, index) => (
+            <img
+              key={index}
+              src={iconData.url}
+              alt={iconData.name}
+              style={{
+                width: 60,
+                height: 60,
+                borderRadius: '50%',
+                border: icon === iconData.url ? '3px solid green' : '2px solid gray',
+                cursor: 'pointer'
+              }}
+              onClick={() => setIcon(iconData.url)}
+              title={iconData.name}
+            />
+          ))}
+        </div>
+        <button onClick={joinGame} disabled={!nickname || !icon} style={{ marginTop: 10 }}>
           Join Game
         </button>
       </div>
     );
   }
-
-  if (showResults) {
-    return (
-      <div style={{ padding: 20 }}>
-        <h2>🎉 Game Over!</h2>
-        <h3>🏆 Top 5 Players</h3>
-        <ul>
-          {leaderboard.map((p, i) => (
-            <li key={i}>
-              {p.nickname} — {p.score} pts
-            </li>
-          ))}
-        </ul>
-      </div>
-    );
-  }
-
-  return (
-    <div style={{ padding: 20 }}>
-      <h2>🎵 Music Trivia Time</h2>
-      {question ? (
-        <>
-          <p>{question.question}</p>
-          <p>⏱ Time left: {timer}s</p>
-          <ul>
-            {question.choices.map((choice, idx) => (
-              <li key={idx}>
-                <button
-                  disabled={answerSubmitted}
-                  style={{
-                    fontWeight: answerSubmitted && idx === correctIndex ? "bold" : "normal",
-                    backgroundColor:
-                      answerSubmitted && idx === correctIndex
-                        ? "lightgreen"
-                        : answerSubmitted && idx === selectedAnswer
-                        ? "lightcoral"
-                        : "white"
-                  }}
-                  onClick={() => setSelectedAnswer(idx)}
-                >
-                  {choice}
-                </button>
-              </li>
-            ))}
-          </ul>
-
-          {!answerSubmitted && selectedAnswer !== null && timer > 0 && (
-            <button onClick={submitAnswer}>Submit</button>
-          )}
-
-          {answerSubmitted && correctIndex !== null && (
-            <div style={{ marginTop: '20px', textAlign: 'center' }}>
-              <h3>✅ Correct Answer:</h3>
-              <p style={{ fontWeight: 'bold' }}>{question.choices[correctIndex]}</p>
-              {artistImage && (
-                <img src={artistImage} alt="Artist" style={{ width: '200px', borderRadius: '8px', marginTop: '10px' }} />
-              )}
-              <h4 style={{ marginTop: '20px' }}>🏆 Top 5 Scores</h4>
-              <ul>
-                {leaderboard.map((player, idx) => (
-                  <li key={idx}>
-                    {player.nickname} — {player.score} pts
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </>
-      ) : (
-        <p>Waiting for the quiz to start...</p>
-      )}
-    </div>
-  );
-}
