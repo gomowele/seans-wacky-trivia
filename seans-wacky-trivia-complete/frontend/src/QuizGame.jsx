@@ -7,8 +7,11 @@ const PRELOADED_ICONS = [
   // (unchanged icon list)
 ];
 
-const proxyImage = (url) =>
-  `https://images.weserv.nl/?url=${encodeURIComponent(url?.replace(/^https?:\/\//, ''))}`;
+const proxyImage = (url) => {
+  if (!url) return "";
+  const stripped = url.replace(/^https?:\/\//, '');
+  return `https://images.weserv.nl/?url=${stripped}`;
+};
 
 export default function QuizGame() {
   const [questionData, setQuestionData] = useState(null);
