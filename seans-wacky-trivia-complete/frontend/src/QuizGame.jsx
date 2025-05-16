@@ -1,31 +1,96 @@
-// QuizGame.jsx
-import './QuizGame.css';
+// App.jsx
 import React, { useState, useEffect } from 'react';
+import QuizGame from './QuizGame';
+import Lobby from './Lobby';
 
-const API_BASE = "https://trivia-backend-79q3.onrender.com";
+export default function App() {
+  const [nickname, setNickname] = useState('');
+  const [icon, setIcon] = useState('');
 
+  useEffect(() => {
+    const savedNick = localStorage.getItem('nickname');
+    const savedIcon = localStorage.getItem('icon');
+    if (savedNick && savedIcon) {
+      setNickname(savedNick);
+      setIcon(savedIcon);
+    }
+  }, []);
+
+  if (!nickname || !icon) {
+    return <Lobby onSubmit={(nick, icn) => {
+      setNickname(nick);
+      setIcon(icn);
+      localStorage.setItem('nickname', nick);
+      localStorage.setItem('icon', icn);
+    }} />;
+  }
+
+  return <QuizGame nickname={nickname} icon={icon} onReset={() => {
+    localStorage.clear();
+    window.location.reload();
+  }} />;
+}
+
+// Lobby.jsx
+import React, { useState } from 'react';
+import { PRELOADED_ICONS } from './QuizGame';
+
+export default function Lobby({ onSubmit }) {
+  const [nickname, setNickname] = useState('');
+  const [selectedIcon, setSelectedIcon] = useState('');
+
+  return (
+    <div className="lobby-container">
+      <h1>Join Sean’s Wacky Trivia 🎶</h1>
+      <input
+        type="text"
+        placeholder="Enter your nickname"
+        value={nickname}
+        onChange={(e) => setNickname(e.target.value)}
+      />
+      <div className="icon-grid">
+        {PRELOADED_ICONS.map((icon, idx) => (
+          <div key={idx} className={selectedIcon === icon.url ? 'icon selected' : 'icon'} onClick={() => setSelectedIcon(icon.url)}>
+            <img src={icon.url} alt={icon.name} />
+            <p>{icon.name}</p>
+          </div>
+        ))}
+      </div>
+      <button disabled={!nickname || !selectedIcon} onClick={() => onSubmit(nickname, selectedIcon)}>
+        Join Game
+      </button>
+    </div>
+  );
+} 
+
+// Add to QuizGame.jsx header area
+// <button onClick={onReset} className="switch-player">Switch Player</button>
+// Style .switch-player in CSS if needed
+
+// Updated PRELOADED_ICONS
 export const PRELOADED_ICONS = [
-  { name: "LeBron", url: "/avatars/lebron.jpg" },
-  { name: "Serena", url: "/avatars/serena.jpg" },
-  { name: "Messi", url: "/icons/messi.png" },
-  { name: "Brady", url: "/icons/brady.png" },
-  { name: "Jordan", url: "/icons/jordan.png" },
-  { name: "Beyoncé", url: "/icons/beyonce.png" },
-  { name: "Drake", url: "/icons/drake.png" },
-  { name: "Bad Bunny", url: "/icons/badbunny.png" },
-  { name: "Taylor", url: "/icons/taylor.png" },
-  { name: "Eminem", url: "/icons/eminem.png" },
-  { name: "Tom Hanks", url: "/icons/hanks.png" },
-  { name: "Zendaya", url: "/icons/zendaya.png" },
-  { name: "The Rock", url: "/icons/therock.png" },
-  { name: "Scarlett", url: "/icons/scarlett.png" },
-  { name: "Mario", url: "/icons/mario.png" },
-  { name: "Lara Croft", url: "/icons/lara.png" },
-  { name: "Master Chief", url: "/icons/chief.png" },
-  { name: "Pikachu", url: "/icons/pikachu.png" },
-  { name: "Link", url: "/icons/link.png" },
-  { name: "Kratos", url: "/icons/kratos.png" }
+  { name: "LeBron James", url: "/avatars/lebron.jpg" },
+  { name: "Serena Williams", url: "/avatars/serena.jpg" },
+  { name: "Lionel Messi", url: "/avatars/messi.jpg" },
+  { name: "Tom Brady", url: "/avatars/brady.jpg" },
+  { name: "Michael Jordan", url: "/avatars/jordan.jpg" },
+  { name: "Beyoncé", url: "/avatars/beyonce.jpg" },
+  { name: "Drake", url: "/avatars/drake.jpg" },
+  { name: "Bad Bunny", url: "/avatars/bad.jpg" },
+  { name: "Taylor Swift", url: "/avatars/taylor.jpg" },
+  { name: "Eminem", url: "/avatars/eminem.jpg" },
+  { name: "Tom Hanks", url: "/avatars/tom.jpg" },
+  { name: "Zendaya", url: "/avatars/zendaya.jpg" },
+  { name: "The Rock", url: "/avatars/therock.jpg" },
+  { name: "Scarlett Johansson", url: "/avatars/scarlett.jpg" },
+  { name: "Mario", url: "/avatars/mario.jpg" },
+  { name: "Lara Croft", url: "/avatars/lara.jpg" },
+  { name: "Master Chief", url: "/avatars/chief.jpg" },
+  { name: "Pikachu", url: "/avatars/pikachu.jpg" },
+  { name: "Link", url: "/avatars/link.jpg" },
+  { name: "Kratos", url: "/avatars/kratos.jpg" }
 ];
+
 
 export default function QuizGame({ nickname, icon, onReset }) {
   const [questionData, setQuestionData] = useState(null);
