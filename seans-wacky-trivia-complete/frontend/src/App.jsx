@@ -1,4 +1,3 @@
-// src/App.jsx
 import React, { useState, useEffect } from 'react';
 import QuizGame from './QuizGame';
 import Lobby from './Lobby';
@@ -17,26 +16,16 @@ export default function App() {
   }, []);
 
   if (!nickname || !icon) {
-    return (
-      <Lobby
-        onSubmit={(nick, icn) => {
-          setNickname(nick);
-          setIcon(icn);
-          localStorage.setItem('nickname', nick);
-          localStorage.setItem('icon', icn);
-        }}
-      />
-    );
+    return <Lobby onSubmit={(nick, icn) => {
+      setNickname(nick);
+      setIcon(icn);
+      localStorage.setItem('nickname', nick);
+      localStorage.setItem('icon', icn);
+    }} />;
   }
 
-  return (
-    <QuizGame
-      nickname={nickname}
-      icon={icon}
-      onReset={() => {
-        localStorage.clear();
-        window.location.reload();
-      }}
-    />
-  );
+  return <QuizGame nickname={nickname} icon={icon} onReset={() => {
+    localStorage.clear();
+    window.location.reload();
+  }} />;
 }
