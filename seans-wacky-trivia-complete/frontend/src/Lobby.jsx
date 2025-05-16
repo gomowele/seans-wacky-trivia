@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { PRELOADED_ICONS } from './QuizGame'; // Or wherever you moved PRELOADED_ICONS
+import { PRELOADED_ICONS } from './icons';
+ // Or wherever you moved PRELOADED_ICONS
 
 export default function Lobby({ onSubmit }) {
   const [nickname, setNickname] = useState('');
