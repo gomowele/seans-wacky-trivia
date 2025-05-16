@@ -41,11 +41,18 @@ export default function QuizGame({ nickname, icon, onReset }) {
     }
   }, [timeLeft, answerShown]);
 
-  const handleAnswer = (choice) => {
-    if (answerShown) return;
+const handleAnswer = (choice) => {
+  if (!answerShown) {
     setSelected(choice);
-    if (choice === questionData.choices[questionData.answer_index]) {
-      setScore(score + 1);
+    const correctAnswer = questionData.choices[questionData.answer_index];
+    if (choice === correctAnswer) {
+      const points = Math.round((timeLeft / 13) * 100);
+      setScore(score + points);
+    }
+    setAnswerShown(true);
+  }
+};
+
     }
     setAnswerShown(true);
   };
