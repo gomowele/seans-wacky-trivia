@@ -1,140 +1,24 @@
-body {
-  margin: 0;
-  font-family: 'Segoe UI', sans-serif;
-  background: linear-gradient(135deg, #1e1e2f, #3a3a50);
-  color: white;
-}
-
-.signup-screen {
+.lobby-container {
   padding: 2rem;
-  max-width: 700px;
-  margin: auto;
   text-align: center;
-}
-
-.game-title {
-  font-size: 2.5rem;
-  margin-bottom: 1rem;
-  color: #ffdb4d;
-}
-
-.nickname-input {
-  padding: 0.5rem;
-  font-size: 1rem;
-  width: 60%;
-  margin-bottom: 1rem;
-  border-radius: 8px;
-  border: none;
 }
 
 .icon-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem;
   justify-content: center;
+  gap: 1rem;
   margin: 1rem 0;
 }
 
 .icon {
-  text-align: center;
-  cursor: pointer;
-  border: 2px solid transparent;
-  padding: 0.5rem;
-  border-radius: 12px;
-  transition: border-color 0.3s ease;
-}
-
-.icon img {
-  width: 100px;
-  height: 100px;
-  object-fit: cover;
-  border-radius: 50%;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-.icon.selected {
-  border-color: #0070f3;
-}
-
-.icon-grid {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 15px;
-  margin-bottom: 20px;
-}
-
-.icon-option {
-  text-align: center;
-  cursor: pointer;
-  width: 80px;
-}
-
-.icon {
-  width: 60px;
-  height: 60px;
-  object-fit: cover;
-  border-radius: 50%;
-  border: 3px solid #888;
-  transition: 0.3s ease;
-}
-
-.icon.selected {
-  border-color: #00ff9d;
-  transform: scale(1.1);
-}
-
-.icon-label {
-  margin-top: 6px;
-  font-size: 0.8rem;
-}
-
-.join-button {
-  padding: 10px 20px;
-  font-size: 1rem;
-  background: #00c9a7;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: 0.3s ease;
-}
-
-.join-button:disabled {
-  background: #666;
-  cursor: not-allowed;
-}
-
-.answer-image {
-  width: 250px;
-  height: auto;
-  display: block;
-  margin: 1rem auto;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  object-fit: contain;
-  max-height: 250px;
-}
-
-.icon-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-  gap: 1rem;
-  padding: 1rem;
-}
-
-.icon {
-  text-align: center;
-  cursor: pointer;
-  padding: 0.5rem;
   border: 2px solid transparent;
   border-radius: 8px;
-  transition: border 0.3s, transform 0.3s;
-}
-
-.icon.selected {
-  border-color: #4caf50;
-  transform: scale(1.05);
+  padding: 0.5rem;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  text-align: center;
+  background-color: #f5f5f5;
 }
 
 .icon img {
@@ -144,8 +28,24 @@ body {
   border-radius: 50%;
 }
 
-.icon p {
-  margin-top: 0.5rem;
-  font-size: 0.9rem;
-  color: #333;
+.icon.selected {
+  border-color: #0070f3;
+  transform: scale(1.1);
+  background-color: #e0f7fa;
+}
+
+button {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  margin-top: 1rem;
+  background-color: #0070f3;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
 }
