@@ -5,8 +5,8 @@ import React, { useState, useEffect } from 'react';
 const API_BASE = "https://trivia-backend-79q3.onrender.com";
 
 export const PRELOADED_ICONS = [
-  { name: "LeBron", url: "/icons/lebron.png" },
-  { name: "Serena", url: "/icons/serena.png" },
+  { name: "LeBron", url: "/avatars/lebron.jpg" },
+  { name: "Serena", url: "/avatars/serena.jpg" },
   { name: "Messi", url: "/icons/messi.png" },
   { name: "Brady", url: "/icons/brady.png" },
   { name: "Jordan", url: "/icons/jordan.png" },
