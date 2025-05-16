@@ -13,17 +13,26 @@ export default function QuizGame() {
   const [answerShown, setAnswerShown] = useState(false);
   const [score, setScore] = useState(0);
   const [timeLeft, setTimeLeft] = useState(13);
+  const [isFinished, setIsFinished] = useState(false);
 
-  useEffect(() => {
+  const fetchQuestion = () => {
     fetch(`${API_BASE}/next-question`, { method: 'POST' })
       .then(res => res.json())
       .then(data => {
         console.log("Fetched question:", data);
         if (data.status === "ok") {
           setQuestionData(data.question);
+          setAnswerShown(false);
+          setTimeLeft(13);
+        } else if (data.status === "finished") {
+          setIsFinished(true);
         }
       })
       .catch(err => console.error("Failed to load question:", err));
+  };
+
+  useEffect(() => {
+    fetchQuestion();
   }, []);
 
   useEffect(() => {
@@ -32,6 +41,12 @@ export default function QuizGame() {
       return () => clearTimeout(timer);
     } else if (!answerShown) {
       setAnswerShown(true);
+    } else {
+      // Auto-advance to next question after 5s of showing the answer
+      const delay = setTimeout(() => {
+        fetchQuestion();
+      }, 5000);
+      return () => clearTimeout(delay);
     }
   }, [timeLeft, answerShown]);
 
@@ -43,6 +58,27 @@ export default function QuizGame() {
       setAnswerShown(true);
     }
   };
+
+  const handleRestart = () => {
+    fetch(`${API_BASE}/reset`, { method: 'POST' })
+      .then(() => {
+        setIsFinished(false);
+        setQuestionData(null);
+        setScore(0);
+        fetchQuestion();
+      });
+  };
+
+  if (isFinished) {
+    return (
+      <div className="quiz-container">
+        <h1>Sean’s Wacky Trivia 🎶</h1>
+        <h2>Game Over!</h2>
+        <p>Your final score: {score}</p>
+        <button onClick={handleRestart}>Restart Game</button>
+      </div>
+    );
+  }
 
   if (!questionData) return <div>Loading question...</div>;
 
