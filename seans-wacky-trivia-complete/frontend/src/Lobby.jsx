@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { PRELOADED_ICONS } from './icons';
+import React, { useState } from 'react';
+import { PRELOADED_ICONS } from './QuizGame'; // Or wherever you moved PRELOADED_ICONS
 
 export default function Lobby({ onSubmit }) {
   const [nickname, setNickname] = useState('');
@@ -15,8 +15,12 @@ export default function Lobby({ onSubmit }) {
         onChange={(e) => setNickname(e.target.value)}
       />
       <div className="icon-grid">
-        {PRELOADED_ICONS.map((icon, idx) => (
-          <div key={idx} className={selectedIcon === icon.url ? 'icon selected' : 'icon'} onClick={() => setSelectedIcon(icon.url)}>
+        {PRELOADED_ICONS.map((icon, i) => (
+          <div
+            key={i}
+            className={selectedIcon === icon.url ? 'icon selected' : 'icon'}
+            onClick={() => setSelectedIcon(icon.url)}
+          >
             <img src={icon.url} alt={icon.name} />
             <p>{icon.name}</p>
           </div>
