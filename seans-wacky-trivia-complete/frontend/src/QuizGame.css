@@ -1,84 +1,106 @@
+/* QuizGame.css */
+
 body {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
   background: url('/images/background.jpg') no-repeat center center fixed;
   background-size: cover;
 }
 
-.lobby-container {
+.quiz-container {
+  max-width: 600px;
+  margin: 2rem auto;
   padding: 2rem;
+  background-color: rgba(255, 255, 255, 0.95);
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
   text-align: center;
-}
-
-.icon-grid {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 1rem;
-  margin: 1rem 0;
-}
-
-.icon {
-  border: 2px solid transparent;
-  border-radius: 8px;
-  padding: 0.5rem;
-  cursor: pointer;
-  transition: transform 0.2s ease;
-  text-align: center;
-  background-color: #f5f5f5;
-}
-
-.icon img {
-  width: 80px;
-  height: 80px;
-  object-fit: cover;
-  border-radius: 50%;
-}
-
-.icon.selected {
-  border-color: #0070f3;
-  transform: scale(1.1);
-  background-color: #e0f7fa;
-}
-
-button {
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
-  margin-top: 1rem;
-  background-color: #0070f3;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-button:disabled {
-  background-color: #cccccc;
-  cursor: not-allowed;
 }
 
 .quiz-header {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  justify-content: space-between;
   margin-bottom: 1rem;
 }
 
 .avatar {
   width: 60px;
   height: 60px;
-  object-fit: cover;
   border-radius: 50%;
-  border: 2px solid #0070f3;
+  object-fit: cover;
 }
 
-.answer-image {
-  max-width: 300px;
-  max-height: 300px;
-  object-fit: contain;
-  margin-top: 1rem;
-  border-radius: 12px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+.choices button {
+  display: block;
+  width: 100%;
+  margin: 0.5rem 0;
+  padding: 0.75rem;
+  font-size: 1rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  background-color: #f0f0f0;
+  transition: background-color 0.3s;
 }
+
+.choices button:hover:not(:disabled) {
+  background-color: #ddd;
+}
+
+.choices button.correct {
+  background-color: #4caf50;
+  color: white;
+}
+
+.choices button.wrong {
+  background-color: #f44336;
+  color: white;
+}
+
+.timer {
+  font-weight: bold;
+  margin: 1rem 0;
+}
+
 .answer-section {
   text-align: center;
   margin-top: 1rem;
+}
+
+.answer-image {
+  width: 250px;
+  max-height: 250px;
+  object-fit: contain;
+  display: block;
+  margin: 1rem auto;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.leaderboard {
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: #e3f2fd;
+  border-radius: 8px;
+}
+
+.switch-player {
+  background-color: #1976d2;
+  color: white;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.switch-player:hover {
+  background-color: #0d47a1;
+}
+
+button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
 }
