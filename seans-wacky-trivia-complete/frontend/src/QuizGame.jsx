@@ -9,6 +9,7 @@ const PRELOADED_ICONS = [
 
 const proxyImage = (url) => {
   if (!url) return "";
+  if (url.startsWith("/")) return url; // serve local images directly
   const stripped = url.replace(/^https?:\/\//, '');
   return `https://images.weserv.nl/?url=${stripped}`;
 };
@@ -88,7 +89,7 @@ export default function QuizGame() {
   if (!questionData) return <div>Loading question...</div>;
 
   const correctAnswer = questionData.choices[questionData.answer_index];
-  const fallbackImage = "https://upload.wikimedia.org/wikipedia/commons/4/4f/Music-note.svg";
+  const fallbackImage = "/images/default.png"; // fallback to a local image
 
   return (
     <div className="quiz-container">
@@ -115,7 +116,6 @@ export default function QuizGame() {
         {answerShown && (
           <div className="answer-display">
             <p>Correct Answer: {correctAnswer}</p>
-            {console.log("📸 image_url:", questionData.image_url)}
             <img
               src={proxyImage(questionData.image_url || fallbackImage)}
               alt="answer visual"
