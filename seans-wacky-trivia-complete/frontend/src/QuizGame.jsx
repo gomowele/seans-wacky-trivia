@@ -41,27 +41,23 @@ export default function QuizGame({ nickname, icon, onReset }) {
     }
   }, [timeLeft, answerShown]);
 
-const handleAnswer = (choice) => {
-  if (!answerShown) {
-    setSelected(choice);
-    const correctAnswer = questionData.choices[questionData.answer_index];
-    if (choice === correctAnswer) {
-      const points = Math.round((timeLeft / 13) * 100);
-      setScore(score + points);
+  const handleAnswer = (choice) => {
+    if (!answerShown) {
+      setSelected(choice);
+      const correctAnswer = questionData.choices[questionData.answer_index];
+      if (choice === correctAnswer) {
+        const points = Math.round((timeLeft / 13) * 100);
+        setScore(score + points);
+      }
+      setAnswerShown(true);
     }
-    setAnswerShown(true);
-  }
-};
-
-    }
-    setAnswerShown(true);
   };
 
   if (isFinished) {
     return (
       <div className="quiz-container">
         <h2>🎉 Game Over!</h2>
-        <p>Score: {score}</p>
+        <p>Final Score: {score}</p>
         <button onClick={onReset}>Switch Player</button>
       </div>
     );
@@ -78,7 +74,9 @@ const handleAnswer = (choice) => {
         <h2>{nickname}</h2>
         <button className="switch-player" onClick={onReset}>Switch Player</button>
       </div>
+
       <h3>{questionData.question}</h3>
+
       <div className="choices">
         {questionData.choices.map((choice, i) => (
           <button
@@ -99,7 +97,9 @@ const handleAnswer = (choice) => {
           </button>
         ))}
       </div>
+
       <div className="timer">Time left: {timeLeft}s</div>
+
       {answerShown && (
         <>
           <p>Correct Answer: {correctAnswer}</p>
@@ -118,4 +118,3 @@ const handleAnswer = (choice) => {
     </div>
   );
 }
-
