@@ -25,7 +25,10 @@ export default function App() {
     }} />;
   }
 
-  return <QuizGame nickname={nickname} icon={icon} />;
+  return <QuizGame nickname={nickname} icon={icon} onReset={() => {
+    localStorage.clear();
+    window.location.reload();
+  }} />;
 }
 
 // Lobby.jsx
@@ -58,4 +61,8 @@ export default function Lobby({ onSubmit }) {
       </button>
     </div>
   );
-}
+} 
+
+// Add to QuizGame.jsx header area
+// <button onClick={onReset} className="switch-player">Switch Player</button>
+// Style .switch-player in CSS if needed
