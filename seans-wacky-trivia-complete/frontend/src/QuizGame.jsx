@@ -117,14 +117,15 @@ export default function QuizGame() {
           <div className="answer-display">
             <p>Correct Answer: {correctAnswer}</p>
             <img
-              src={proxyImage(questionData.image_url || fallbackImage)}
-              alt="answer visual"
-              className="answer-image"
-              onError={(e) => {
-                console.log("❌ Failed to load image:", questionData.image_url);
-                e.target.src = fallbackImage;
-              }}
-            />
+  src={`/images/${questionData.image_url || 'default.png'}`}
+  alt="answer"
+  className="answer-image"
+  onError={(e) => {
+    console.log("❌ Failed to load image:", questionData.image_url);
+    e.target.src = '/images/default.png';
+  }}
+/>
+
             <p>Your Score: {score}</p>
           </div>
         )}
