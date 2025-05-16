@@ -30,122 +30,66 @@ const PRELOADED_ICONS = [
   { name: "Link", url: "https://upload.wikimedia.org/wikipedia/en/8/8e/Link_BotW.png" }
 ];
 
-export default PRELOADED_ICONS;
-
-
 export default function QuizGame() {
-  const [nickname, setNickname] = useState("");
-  const [icon, setIcon] = useState(null);
-  const [playerId, setPlayerId] = useState(null);
   const [question, setQuestion] = useState(null);
-  const [selectedAnswer, setSelectedAnswer] = useState(null);
-  const [answerSubmitted, setAnswerSubmitted] = useState(false);
-  const [correctIndex, setCorrectIndex] = useState(null);
-  const [artistImage, setArtistImage] = useState(null);
-  const [leaderboard, setLeaderboard] = useState([]);
-  const [showResults, setShowResults] = useState(false);
-  const [timer, setTimer] = useState(13);
-
-  const joinGame = async () => {
-    const formData = new FormData();
-    formData.append("nickname", nickname);
-    formData.append("icon_url", icon);
-
-    const res = await fetch(`${API_BASE}/join`, {
-      method: "POST",
-      body: formData
-    });
-    const data = await res.json();
-    setPlayerId(data.player_id);
-  };
-
-  const fetchQuestion = async () => {
-    const res = await fetch(`${API_BASE}/current-question`);
-    const data = await res.json();
-
-    if (data.status === "finished") {
-      const res = await fetch(`${API_BASE}/leaderboard`);
-      const lb = await res.json();
-      setLeaderboard(lb.top5);
-      setShowResults(true);
-    } else if (data.status !== "waiting") {
-      setQuestion(data);
-      setAnswerSubmitted(false);
-      setSelectedAnswer(null);
-      setCorrectIndex(null);
-      setArtistImage(data.image_url || null);
-      setTimer(13);
-    }
-  };
-
-  const submitAnswer = async () => {
-    if (answerSubmitted || selectedAnswer === null) return;
-
-    const formData = new FormData();
-    formData.append("player_id", playerId);
-    formData.append("answer_index", selectedAnswer);
-
-    const response = await fetch(`${API_BASE}/submit-answer`, {
-      method: "POST",
-      body: formData
-    });
-
-    const data = await response.json();
-    setCorrectIndex(data.correct_index);
-    setArtistImage(data.image_url);
-
-    const lb = await fetch(`${API_BASE}/leaderboard`);
-    const lbData = await lb.json();
-    setLeaderboard(lbData.top5);
-
-    setAnswerSubmitted(true);
-  };
+  const [selected, setSelected] = useState(null);
+  const [answerShown, setAnswerShown] = useState(false);
+  const [score, setScore] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(13);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      fetchQuestion();
-    }, 1000);
-    return () => clearInterval(interval);
+    fetch(`${API_BASE}/next-question`, { method: 'POST' })
+      .then(res => res.json())
+      .then(data => setQuestion(data));
   }, []);
 
   useEffect(() => {
-    if (timer > 0 && question && !answerSubmitted) {
-      const countdown = setInterval(() => {
-        setTimer((prev) => prev - 1);
-      }, 1000);
-      return () => clearInterval(countdown);
-    } else if (timer === 0 && !answerSubmitted) {
-      submitAnswer();
+    if (timeLeft > 0 && !answerShown) {
+      const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
+      return () => clearTimeout(timer);
+    } else if (!answerShown) {
+      setAnswerShown(true);
     }
-  }, [timer, question, answerSubmitted]);
+  }, [timeLeft, answerShown]);
 
-  if (!playerId) {
-    return (
-      <div className="signup-screen">
-        <h1 className="game-title">Sean’s Wacky Trivia 🤪😎🫡</h1>
-        <input
-          className="nickname-input"
-          type="text"
-          placeholder="Enter nickname"
-          value={nickname}
-          onChange={(e) => setNickname(e.target.value)}
-        />
-        <h3>Select Your Icon</h3>
-        <div className="icon-grid">
-          {PRELOADED_ICONS.map((iconData, index) => (
-            <div key={index} className="icon-option" onClick={() => setIcon(iconData.url)}>
-              <img
-                src={iconData.url}
-                alt={iconData.name}
-                className={icon === iconData.url ? "icon selected" : "icon"}
-              />
-              <div className="icon-label">{iconData.name}</div>
-            </div>
+  const handleAnswer = (choice) => {
+    if (!answerShown) {
+      setSelected(choice);
+      if (choice === question.correct_answer) setScore(score + 1);
+      setAnswerShown(true);
+    }
+  };
+
+  if (!question) return <div>Loading question...</div>;
+
+  return (
+    <div className="quiz-container">
+      <h1>Sean’s Wacky Trivia 🎶</h1>
+      <div className="question-box">
+        <h2>{question.text}</h2>
+        <div className="choices">
+          {question.choices.map((c, i) => (
+            <button
+              key={i}
+              onClick={() => handleAnswer(c)}
+              className={answerShown && c === question.correct_answer ? 'correct' : ''}
+              disabled={answerShown}
+            >
+              {c}
+            </button>
           ))}
         </div>
-        <button className="join-button" onClick={joinGame} disabled={!nickname || !icon}>
-          Join Game
-        </button>
+        <div className="timer">Time left: {timeLeft}s</div>
+        {answerShown && (
+          <div className="answer-display">
+            <p>Correct Answer: {question.correct_answer}</p>
+            {question.image_url && <img src={question.image_url} alt="answer visual" className="answer-image" />}
+            <p>Your Score: {score}</p>
+          </div>
+        )}
       </div>
-    );
-  }
+    </div>
+  );
+}
+
+export { PRELOADED_ICONS };
