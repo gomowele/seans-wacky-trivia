@@ -14,17 +14,77 @@ app.add_middleware(
 
 players = []
 questions = [
+    # 🎧 Pop
     {
-        "question": "What is the capital of France?",
-        "choices": ["Paris", "Rome", "Berlin", "Madrid"],
-        "answer_index": 0,
+        "question": "Finish this Britney lyric: 'Oops!... I did it again, I played with your ___.'",
+        "choices": ["time", "heart", "feelings", "mind"],
+        "answer_index": 1
     },
+
+    # 🎤 Hip-Hop
     {
-        "question": "What is 2 + 2?",
-        "choices": ["3", "4", "5", "22"],
-        "answer_index": 1,
+        "question": "'Hey Ya!' was a 2003 hit from which hip-hop duo?",
+        "choices": ["OutKast", "The Roots", "UGK", "Mobb Deep"],
+        "answer_index": 0
     },
+
+    # 🎶 R&B
+    {
+        "question": "'No Scrubs' was a 1999 hit for which girl group?",
+        "choices": ["Destiny’s Child", "SWV", "En Vogue", "TLC"],
+        "answer_index": 3
+    },
+
+    # 🎸 Rock
+    {
+        "question": "'Boulevard of Broken Dreams' was a hit by which band?",
+        "choices": ["Green Day", "Red Hot Chili Peppers", "Coldplay", "Linkin Park"],
+        "answer_index": 0
+    },
+
+    # 🎤 Reggaeton / Latin
+    {
+        "question": "Which Latin artist sang 'Bidi Bidi Bom Bom'?",
+        "choices": ["Shakira", "Selena Quintanilla", "Paulina Rubio", "Jennifer Lopez"],
+        "answer_index": 1
+    },
+
+    # 🎧 Pop
+    {
+        "question": "Which artist released 'Rolling in the Deep' in 2010?",
+        "choices": ["Adele", "P!nk", "Kelly Clarkson", "Lorde"],
+        "answer_index": 0
+    },
+
+    # 🎶 R&B
+    {
+        "question": "Who sang: 'I believe I can fly' in the late 90s?",
+        "choices": ["Usher", "R. Kelly", "Brian McKnight", "Tyrese"],
+        "answer_index": 1
+    },
+
+    # 🎤 Hip-Hop
+    {
+        "question": "Which artist released 'Lose Yourself' in 2002?",
+        "choices": ["Jay-Z", "Eminem", "Nas", "50 Cent"],
+        "answer_index": 1
+    },
+
+    # 🎸 Rock
+    {
+        "question": "Which band sang: 'Wonderwall' in the 90s?",
+        "choices": ["Nirvana", "Oasis", "Radiohead", "Smashing Pumpkins"],
+        "answer_index": 1
+    },
+
+    # 🎤 Reggaeton
+    {
+        "question": "'Danza Kuduro' was a global hit by which artist?",
+        "choices": ["Don Omar", "Daddy Yankee", "Luis Fonsi", "Romeo Santos"],
+        "answer_index": 0
+    }
 ]
+
 current_index = -1
 
 
