@@ -1,3 +1,4 @@
+import './QuizGame.css';
 import React, { useState, useEffect } from "react";
 import "./QuizGame.css";
 
