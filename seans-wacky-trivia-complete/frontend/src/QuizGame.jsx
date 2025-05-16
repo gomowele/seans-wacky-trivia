@@ -47,6 +47,7 @@ export default function QuizGame() {
   if (!questionData) return <div>Loading question...</div>;
 
   const correctAnswer = questionData.choices[questionData.answer_index];
+  const fallbackImage = "https://upload.wikimedia.org/wikipedia/commons/4/4f/Music-note.svg";
 
   return (
     <div className="quiz-container">
@@ -73,14 +74,12 @@ export default function QuizGame() {
         {answerShown && (
           <div className="answer-display">
             <p>Correct Answer: {correctAnswer}</p>
-            {questionData.image_url && (
-              <img
-                src={questionData.image_url}
-                alt="answer visual"
-                className="answer-image"
-                onError={(e) => (e.target.style.display = 'none')}
-              />
-            )}
+            <img
+              src={questionData.image_url || fallbackImage}
+              alt="answer visual"
+              className="answer-image"
+              onError={(e) => (e.target.src = fallbackImage)}
+            />
             <p>Your Score: {score}</p>
           </div>
         )}
