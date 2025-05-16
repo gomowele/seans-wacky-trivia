@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import "./QuizGame.css";
 
 const API_BASE = "https://trivia-backend-79q3.onrender.com";
 
@@ -117,34 +118,29 @@ export default function QuizGame() {
 
   if (!playerId) {
     return (
-      <div style={{ padding: 20 }}>
-        <h1>Sean’s Wacky Trivia 🤪😎🫡</h1>
+      <div className="signup-screen">
+        <h1 className="game-title">Sean’s Wacky Trivia 🤪😎🫡</h1>
         <input
+          className="nickname-input"
           type="text"
           placeholder="Enter nickname"
           value={nickname}
           onChange={(e) => setNickname(e.target.value)}
         />
         <h3>Select Your Icon</h3>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+        <div className="icon-grid">
           {PRELOADED_ICONS.map((iconData, index) => (
-            <img
-              key={index}
-              src={iconData.url}
-              alt={iconData.name}
-              style={{
-                width: 60,
-                height: 60,
-                borderRadius: '50%',
-                border: icon === iconData.url ? '3px solid green' : '2px solid gray',
-                cursor: 'pointer'
-              }}
-              onClick={() => setIcon(iconData.url)}
-              title={iconData.name}
-            />
+            <div key={index} className="icon-option" onClick={() => setIcon(iconData.url)}>
+              <img
+                src={iconData.url}
+                alt={iconData.name}
+                className={icon === iconData.url ? "icon selected" : "icon"}
+              />
+              <div className="icon-label">{iconData.name}</div>
+            </div>
           ))}
         </div>
-        <button onClick={joinGame} disabled={!nickname || !icon} style={{ marginTop: 10 }}>
+        <button className="join-button" onClick={joinGame} disabled={!nickname || !icon}>
           Join Game
         </button>
       </div>
