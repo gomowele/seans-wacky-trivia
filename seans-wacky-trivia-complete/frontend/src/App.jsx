@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Lobby from './Lobby';
 import QuizGame from './QuizGame';
+import './QuizGame.css';
 
 export default function App() {
   const [nickname, setNickname] = useState('');
