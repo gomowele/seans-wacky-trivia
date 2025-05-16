@@ -3,3 +3,33 @@ body {
   font-family: 'Arial', sans-serif;
   background-color: #f4f4f4;
 }
+.icon-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.icon {
+  text-align: center;
+  cursor: pointer;
+}
+
+.icon img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  transition: border 0.3s, transform 0.3s;
+}
+
+.icon.selected img {
+  border: 2px solid #4caf50;
+  transform: scale(1.1);
+}
+
+.icon p {
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+}
