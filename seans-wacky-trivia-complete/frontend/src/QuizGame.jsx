@@ -7,6 +7,9 @@ const PRELOADED_ICONS = [
   // (unchanged icon list)
 ];
 
+const proxyImage = (url) =>
+  `https://images.weserv.nl/?url=${encodeURIComponent(url?.replace(/^https?:\/\//, ''))}`;
+
 export default function QuizGame() {
   const [questionData, setQuestionData] = useState(null);
   const [selected, setSelected] = useState(null);
@@ -42,7 +45,6 @@ export default function QuizGame() {
     } else if (!answerShown) {
       setAnswerShown(true);
     } else {
-      // Auto-advance to next question after 5s of showing the answer
       const delay = setTimeout(() => {
         fetchQuestion();
       }, 5000);
@@ -108,22 +110,21 @@ export default function QuizGame() {
         </div>
         <div className="timer">Time left: {timeLeft}s</div>
         {answerShown && (
-  <div className="answer-display">
-    <p>Correct Answer: {correctAnswer}</p>
-    {console.log("📸 image_url:", questionData.image_url)}
-    <img
-      src={questionData.image_url || fallbackImage}
-      alt="answer visual"
-      className="answer-image"
-      onError={(e) => {
-        console.log("❌ Failed to load image:", questionData.image_url);
-        e.target.src = fallbackImage;
-      }}
-    />
-    <p>Your Score: {score}</p>
-  </div>
-)}
-
+          <div className="answer-display">
+            <p>Correct Answer: {correctAnswer}</p>
+            {console.log("📸 image_url:", questionData.image_url)}
+            <img
+              src={proxyImage(questionData.image_url || fallbackImage)}
+              alt="answer visual"
+              className="answer-image"
+              onError={(e) => {
+                console.log("❌ Failed to load image:", questionData.image_url);
+                e.target.src = fallbackImage;
+              }}
+            />
+            <p>Your Score: {score}</p>
+          </div>
+        )}
       </div>
     </div>
   );
