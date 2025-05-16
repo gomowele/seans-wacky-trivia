@@ -121,3 +121,12 @@ export default function QuizGame({ nickname, icon, onReset }) {
     </div>
   );
 }
+if (isFinished) {
+  return (
+    <div className="quiz-container">
+      <h2>🎉 Game Over!</h2>
+      <p>Score: {score}</p>
+      <button onClick={onReset}>Switch Player</button>
+    </div>
+  );
+}
