@@ -108,17 +108,22 @@ export default function QuizGame() {
         </div>
         <div className="timer">Time left: {timeLeft}s</div>
         {answerShown && (
-          <div className="answer-display">
-            <p>Correct Answer: {correctAnswer}</p>
-            <img
-              src={questionData.image_url || fallbackImage}
-              alt="answer visual"
-              className="answer-image"
-              onError={(e) => (e.target.src = fallbackImage)}
-            />
-            <p>Your Score: {score}</p>
-          </div>
-        )}
+  <div className="answer-display">
+    <p>Correct Answer: {correctAnswer}</p>
+    {console.log("📸 image_url:", questionData.image_url)}
+    <img
+      src={questionData.image_url || fallbackImage}
+      alt="answer visual"
+      className="answer-image"
+      onError={(e) => {
+        console.log("❌ Failed to load image:", questionData.image_url);
+        e.target.src = fallbackImage;
+      }}
+    />
+    <p>Your Score: {score}</p>
+  </div>
+)}
+
       </div>
     </div>
   );
