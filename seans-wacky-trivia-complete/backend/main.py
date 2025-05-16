@@ -74,3 +74,11 @@ def leaderboard():
     top5 = sorted(players, key=lambda p: -p["score"])[:5]
     winner = max(players, key=lambda p: p["score"])
     return {"top5": top5, "winner": winner}
+
+@app.post("/reset")
+def reset():
+    global players, current_index
+    players = []
+    current_index = -1
+    return {"status": "reset complete"}
+
