@@ -1,0 +1,77 @@
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg, #1e1e2f, #3a3a50);
+  color: white;
+}
+
+.signup-screen {
+  padding: 2rem;
+  max-width: 700px;
+  margin: auto;
+  text-align: center;
+}
+
+.game-title {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  color: #ffdb4d;
+}
+
+.nickname-input {
+  padding: 0.5rem;
+  font-size: 1rem;
+  width: 60%;
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  border: none;
+}
+
+.icon-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.icon-option {
+  text-align: center;
+  cursor: pointer;
+  width: 80px;
+}
+
+.icon {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 3px solid #888;
+  transition: 0.3s ease;
+}
+
+.icon.selected {
+  border-color: #00ff9d;
+  transform: scale(1.1);
+}
+
+.icon-label {
+  margin-top: 6px;
+  font-size: 0.8rem;
+}
+
+.join-button {
+  padding: 10px 20px;
+  font-size: 1rem;
+  background: #00c9a7;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.join-button:disabled {
+  background: #666;
+  cursor: not-allowed;
+}
