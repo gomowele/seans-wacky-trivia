@@ -11,6 +11,7 @@ export default function QuizGame({ nickname, icon, onReset }) {
   const [score, setScore] = useState(0);
   const [timeLeft, setTimeLeft] = useState(13);
   const [isFinished, setIsFinished] = useState(false);
+  const [gameStarted, setGameStarted] = useState(false);
 
   const fetchQuestion = () => {
     fetch(`${API_BASE}/next-question`, { method: 'POST' })
@@ -27,10 +28,14 @@ export default function QuizGame({ nickname, icon, onReset }) {
   };
 
   useEffect(() => {
-    fetchQuestion();
-  }, []);
+    if (gameStarted) {
+      fetchQuestion();
+    }
+  }, [gameStarted]);
 
   useEffect(() => {
+    if (!gameStarted || !questionData) return;
+
     if (!answerShown && timeLeft > 0) {
       const timer = setTimeout(() => setTimeLeft(t => t - 1), 1000);
       return () => clearTimeout(timer);
@@ -40,7 +45,7 @@ export default function QuizGame({ nickname, icon, onReset }) {
       const autoAdvance = setTimeout(() => fetchQuestion(), 5000);
       return () => clearTimeout(autoAdvance);
     }
-  }, [timeLeft, answerShown]);
+  }, [timeLeft, answerShown, gameStarted, questionData]);
 
   const handleAnswer = (choice) => {
     if (!answerShown) {
@@ -53,6 +58,17 @@ export default function QuizGame({ nickname, icon, onReset }) {
       setAnswerShown(true);
     }
   };
+
+  if (!gameStarted) {
+    return (
+      <div className="quiz-container">
+        <h1>Welcome, {nickname}!</h1>
+        <img src={icon} alt="player" className="avatar" />
+        <p>Get ready to play Sean's Wacky Trivia 🎶</p>
+        <button onClick={() => setGameStarted(true)}>Start Game</button>
+      </div>
+    );
+  }
 
   if (isFinished) {
     return (
