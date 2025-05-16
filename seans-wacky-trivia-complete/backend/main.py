@@ -95,9 +95,12 @@ def join(nickname: str = Form(...), icon_url: str = Form(...)):
 @app.get("/current-question")
 def current_question():
     if 0 <= current_index < len(questions):
-        q = questions[current_index].copy()
-        del q["answer_index"]
-        return {"question": q["question"], "choices": q["choices"]}
+        q = questions[current_index]
+        return {
+            "question": q["question"],
+            "choices": q["choices"],
+            "image_url": q["image_url"]
+        }
     elif current_index >= len(questions):
         return {"status": "finished"}
     return {"status": "waiting"}
@@ -106,10 +109,21 @@ def current_question():
 @app.post("/submit-answer")
 def submit_answer(player_id: int = Form(...), answer_index: int = Form(...)):
     if 0 <= current_index < len(questions):
-        correct = questions[current_index]["answer_index"]
-        if answer_index == correct:
+        correct_index = questions[current_index]["answer_index"]
+        image_url = questions[current_index]["image_url"]
+
+        if answer_index == correct_index:
             players[player_id]["score"] += 10
-    return {"status": "ok"}
+
+        return {
+            "status": "ok",
+            "correct_index": correct_index,
+            "image_url": image_url,
+            "updated_score": players[player_id]["score"]
+        }
+
+    return {"status": "error"}
+
 
 
 @app.post("/next-question")
