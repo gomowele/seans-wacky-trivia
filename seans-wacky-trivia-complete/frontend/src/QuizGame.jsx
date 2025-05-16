@@ -12,6 +12,18 @@ export default function QuizGame({ nickname, icon, onReset }) {
   const [timeLeft, setTimeLeft] = useState(13);
   const [isFinished, setIsFinished] = useState(false);
   const [gameStarted, setGameStarted] = useState(false);
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
+
+  useEffect(() => {
+    const audio = new Audio('/audio/music.mp3');
+    audio.loop = true;
+    audio.volume = 0.3;
+    const startMusic = () => {
+      audio.play().catch(e => console.log("Autoplay blocked"));
+    };
+    if (gameStarted) startMusic();
+    return () => audio.pause();
+  }, [gameStarted]);
 
   const fetchQuestion = () => {
     fetch(`${API_BASE}/next-question`, { method: 'POST' })
@@ -20,6 +32,7 @@ export default function QuizGame({ nickname, icon, onReset }) {
         if (data.status === 'ok') {
           setQuestionData(data.question);
           setAnswerShown(false);
+          setSelected(null);
           setTimeLeft(13);
         } else {
           setIsFinished(true);
@@ -41,22 +54,29 @@ export default function QuizGame({ nickname, icon, onReset }) {
       return () => clearTimeout(timer);
     } else if (!answerShown) {
       setAnswerShown(true);
-    } else {
-      const autoAdvance = setTimeout(() => fetchQuestion(), 5000);
-      return () => clearTimeout(autoAdvance);
     }
   }, [timeLeft, answerShown, gameStarted, questionData]);
 
-  const handleAnswer = (choice) => {
-    if (!answerShown) {
-      setSelected(choice);
-      const correctAnswer = questionData.choices[questionData.answer_index];
-      if (choice === correctAnswer) {
-        const points = Math.round((timeLeft / 13) * 100);
-        setScore(score + points);
-      }
-      setAnswerShown(true);
+  useEffect(() => {
+    if (answerShown && questionData) {
+      setShowLeaderboard(true);
+      const timeout = setTimeout(() => {
+        setShowLeaderboard(false);
+        fetchQuestion();
+      }, 7000);
+      return () => clearTimeout(timeout);
     }
+  }, [answerShown]);
+
+  const handleAnswer = (choice) => {
+    if (timeLeft > 0 || answerShown) return;
+    setSelected(choice);
+    const correctAnswer = questionData.choices[questionData.answer_index];
+    if (choice === correctAnswer) {
+      const points = Math.round((timeLeft / 13) * 100);
+      setScore(score + points);
+    }
+    setAnswerShown(true);
   };
 
   if (!gameStarted) {
@@ -99,7 +119,7 @@ export default function QuizGame({ nickname, icon, onReset }) {
           <button
             key={i}
             onClick={() => handleAnswer(choice)}
-            disabled={answerShown}
+            disabled={answerShown || timeLeft > 0}
             className={
               answerShown
                 ? choice === correctAnswer
@@ -130,6 +150,13 @@ export default function QuizGame({ nickname, icon, onReset }) {
             }}
           />
           <p>Score: {score}</p>
+        </div>
+      )}
+
+      {answerShown && showLeaderboard && (
+        <div className="leaderboard">
+          <h4>Leaderboard</h4>
+          <p>{nickname}: {score} pts</p>
         </div>
       )}
     </div>
