@@ -100,21 +100,24 @@ export default function QuizGame({ nickname, icon, onReset }) {
 
       <div className="timer">Time left: {timeLeft}s</div>
 
-      {answerShown && (
-        <>
-          <p>Correct Answer: {correctAnswer}</p>
-          <img
-            src={`/images/${questionData.image_url || 'default.png'}`}
-            alt="Answer Visual"
-            className="answer-image"
-            onError={(e) => {
-              console.log("❌ Failed to load image", e.target.src);
-              e.target.src = '/images/default.png';
-            }}
-          />
-          <p>Score: {score}</p>
-        </>
-      )}
+     <div className="answer-section">
+  <p>Correct Answer: {correctAnswer}</p>
+  <img
+    src={`/images/${questionData.image_url || 'default.png'}`}
+    alt="Answer Visual"
+    className="answer-image"
+    onError={(e) => {
+      console.log("❌ Failed to load image", e.target.src);
+      e.target.src = '/images/default.png';
+    }}
+  />
+  <p>Score: {score}</p>
+</div>
+.answer-section {
+  text-align: center;
+  margin-top: 1rem;
+}
+
     </div>
   );
 }
