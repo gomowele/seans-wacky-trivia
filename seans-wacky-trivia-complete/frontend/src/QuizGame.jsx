@@ -1,5 +1,6 @@
 // QuizGame.jsx
 import React, { useState, useEffect } from 'react';
+import './QuizGame.css';
 
 const API_BASE = 'https://trivia-backend-79q3.onrender.com';
 
