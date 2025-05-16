@@ -1,5 +1,5 @@
 // QuizGame.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './QuizGame.css';
 
 const API_BASE = 'https://trivia-backend-79q3.onrender.com';
@@ -13,17 +13,8 @@ export default function QuizGame({ nickname, icon, onReset }) {
   const [isFinished, setIsFinished] = useState(false);
   const [gameStarted, setGameStarted] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
-
-  useEffect(() => {
-    const audio = new Audio('/audio/music.mp3');
-    audio.loop = true;
-    audio.volume = 0.3;
-    const startMusic = () => {
-      audio.play().catch(e => console.log("Autoplay blocked"));
-    };
-    if (gameStarted) startMusic();
-    return () => audio.pause();
-  }, [gameStarted]);
+  const [players, setPlayers] = useState([]);
+  const audioRef = useRef(null);
 
   const fetchQuestion = () => {
     fetch(`${API_BASE}/next-question`, { method: 'POST' })
@@ -32,8 +23,8 @@ export default function QuizGame({ nickname, icon, onReset }) {
         if (data.status === 'ok') {
           setQuestionData(data.question);
           setAnswerShown(false);
-          setSelected(null);
           setTimeLeft(13);
+          setSelected(null);
         } else {
           setIsFinished(true);
         }
@@ -43,40 +34,38 @@ export default function QuizGame({ nickname, icon, onReset }) {
   useEffect(() => {
     if (gameStarted) {
       fetchQuestion();
+      if (audioRef.current) audioRef.current.play();
     }
   }, [gameStarted]);
 
   useEffect(() => {
-    if (!gameStarted || !questionData) return;
+    if (!gameStarted || !questionData || answerShown) return;
 
-    if (!answerShown && timeLeft > 0) {
+    if (timeLeft > 0) {
       const timer = setTimeout(() => setTimeLeft(t => t - 1), 1000);
       return () => clearTimeout(timer);
-    } else if (!answerShown) {
+    } else {
       setAnswerShown(true);
-    }
-  }, [timeLeft, answerShown, gameStarted, questionData]);
-
-  useEffect(() => {
-    if (answerShown && questionData) {
       setShowLeaderboard(true);
-      const timeout = setTimeout(() => {
+      setTimeout(() => {
         setShowLeaderboard(false);
         fetchQuestion();
       }, 7000);
-      return () => clearTimeout(timeout);
     }
-  }, [answerShown]);
+  }, [timeLeft, answerShown, gameStarted, questionData]);
 
   const handleAnswer = (choice) => {
-    if (timeLeft > 0 || answerShown) return;
-    setSelected(choice);
-    const correctAnswer = questionData.choices[questionData.answer_index];
-    if (choice === correctAnswer) {
-      const points = Math.round((timeLeft / 13) * 100);
-      setScore(score + points);
+    if (!answerShown && timeLeft > 0) {
+      setSelected(choice);
+      const correctAnswer = questionData.choices[questionData.answer_index];
+      if (choice === correctAnswer) {
+        const points = Math.round((timeLeft / 13) * 100);
+        setScore(score + points);
+        setPlayers(prev => [...prev, { nickname, score: score + points }]);
+      } else {
+        setPlayers(prev => [...prev, { nickname, score }]);
+      }
     }
-    setAnswerShown(true);
   };
 
   if (!gameStarted) {
@@ -86,6 +75,7 @@ export default function QuizGame({ nickname, icon, onReset }) {
         <img src={icon} alt="player" className="avatar" />
         <p>Get ready to play Sean's Wacky Trivia 🎶</p>
         <button onClick={() => setGameStarted(true)}>Start Game</button>
+        <audio ref={audioRef} src="/audio/theme.mp3" loop preload="auto" />
       </div>
     );
   }
@@ -119,7 +109,7 @@ export default function QuizGame({ nickname, icon, onReset }) {
           <button
             key={i}
             onClick={() => handleAnswer(choice)}
-            disabled={answerShown || timeLeft > 0}
+            disabled={answerShown}
             className={
               answerShown
                 ? choice === correctAnswer
@@ -153,10 +143,17 @@ export default function QuizGame({ nickname, icon, onReset }) {
         </div>
       )}
 
-      {answerShown && showLeaderboard && (
+      {showLeaderboard && (
         <div className="leaderboard">
           <h4>Leaderboard</h4>
-          <p>{nickname}: {score} pts</p>
+          <ul>
+            {[...players]
+              .sort((a, b) => b.score - a.score)
+              .slice(0, 5)
+              .map((p, i) => (
+                <li key={i}>{p.nickname}: {p.score}</li>
+              ))}
+          </ul>
         </div>
       )}
     </div>
