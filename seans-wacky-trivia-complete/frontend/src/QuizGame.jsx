@@ -1,6 +1,5 @@
 import './QuizGame.css';
 import React, { useState, useEffect } from "react";
-import "./QuizGame.css";
 
 const API_BASE = "https://trivia-backend-79q3.onrender.com";
 
@@ -30,6 +29,9 @@ const PRELOADED_ICONS = [
   { name: "Sonic", url: "https://upload.wikimedia.org/wikipedia/en/e/e2/Sonic_the_Hedgehog.png" },
   { name: "Link", url: "https://upload.wikimedia.org/wikipedia/en/8/8e/Link_BotW.png" }
 ];
+
+export default PRELOADED_ICONS;
+
 
 export default function QuizGame() {
   const [nickname, setNickname] = useState("");
