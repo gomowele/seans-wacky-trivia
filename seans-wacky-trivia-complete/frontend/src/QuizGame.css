@@ -75,3 +75,14 @@ body {
   background: #666;
   cursor: not-allowed;
 }
+
+.answer-image {
+  width: 250px;
+  height: auto;
+  display: block;
+  margin: 1rem auto;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  object-fit: contain;
+  max-height: 250px;
+}
