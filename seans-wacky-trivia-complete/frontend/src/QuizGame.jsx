@@ -13,6 +13,7 @@ export default function QuizGame() {
   const [artistImage, setArtistImage] = useState(null);
   const [leaderboard, setLeaderboard] = useState([]);
   const [showResults, setShowResults] = useState(false);
+  const [timer, setTimer] = useState(13);
 
   const joinGame = async () => {
     const formData = new FormData();
@@ -41,11 +42,14 @@ export default function QuizGame() {
       setAnswerSubmitted(false);
       setSelectedAnswer(null);
       setCorrectIndex(null);
-      setArtistImage(null);
+      setArtistImage(data.image_url || null);
+      setTimer(13);
     }
   };
 
   const submitAnswer = async () => {
+    if (answerSubmitted || selectedAnswer === null) return;
+
     const formData = new FormData();
     formData.append("player_id", playerId);
     formData.append("answer_index", selectedAnswer);
@@ -72,6 +76,17 @@ export default function QuizGame() {
     }, 1000);
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    if (timer > 0 && question && !answerSubmitted) {
+      const countdown = setInterval(() => {
+        setTimer((prev) => prev - 1);
+      }, 1000);
+      return () => clearInterval(countdown);
+    } else if (timer === 0 && !answerSubmitted) {
+      submitAnswer();
+    }
+  }, [timer, question, answerSubmitted]);
 
   if (!playerId) {
     return (
@@ -117,6 +132,7 @@ export default function QuizGame() {
       {question ? (
         <>
           <p>{question.question}</p>
+          <p>⏱ Time left: {timer}s</p>
           <ul>
             {question.choices.map((choice, idx) => (
               <li key={idx}>
@@ -139,7 +155,7 @@ export default function QuizGame() {
             ))}
           </ul>
 
-          {!answerSubmitted && selectedAnswer !== null && (
+          {!answerSubmitted && selectedAnswer !== null && timer > 0 && (
             <button onClick={submitAnswer}>Submit</button>
           )}
 
