@@ -15,66 +15,67 @@ app.add_middleware(
 players = []
 questions = [
     {
-        "question": "Finish this Britney lyric: 'Oops!... I did it again, I played with your ___.'",
-        "choices": ["time", "heart", "feelings", "mind"],
-        "answer_index": 1,
-        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Britney_Spears_2013.jpg/330px-Britney_Spears_2013.jpg"
+        "question": "Which artist released 'Rolling in the Deep' in 2010?",
+        "choices": ["Adele", "P!nk", "Kelly Clarkson", "Lorde"],
+        "answer_index": 0,
+        "image_url": "adele.jpg"
     },
     {
         "question": "'Hey Ya!' was a 2003 hit from which hip-hop duo?",
         "choices": ["OutKast", "The Roots", "UGK", "Mobb Deep"],
         "answer_index": 0,
-        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/OutKast.jpg/330px-OutKast.jpg"
-    },
-    {
-        "question": "'No Scrubs' was a 1999 hit for which girl group?",
-        "choices": ["Destiny’s Child", "SWV", "En Vogue", "TLC"],
-        "answer_index": 3,
-        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/TLC_2013.jpg/330px-TLC_2013.jpg"
-    },
-    {
-        "question": "'Boulevard of Broken Dreams' was a hit by which band?",
-        "choices": ["Green Day", "Red Hot Chili Peppers", "Coldplay", "Linkin Park"],
-        "answer_index": 0,
-        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Green_Day_-_Rock_im_Park_2013.jpg/330px-Green_Day_-_Rock_im_Park_2013.jpg"
-    },
-    {
-        "question": "Which Latin artist sang 'Bidi Bidi Bom Bom'?",
-        "choices": ["Shakira", "Selena Quintanilla", "Paulina Rubio", "Jennifer Lopez"],
-        "answer_index": 1,
-        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Selena_Quintanilla_P%C3%A9rez.png/330px-Selena_Quintanilla_P%C3%A9rez.png"
-    },
-    {
-        "question": "Which artist released 'Rolling in the Deep' in 2010?",
-        "choices": ["Adele", "P!nk", "Kelly Clarkson", "Lorde"],
-        "answer_index": 0,
-        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Adele_2016.jpg/330px-Adele_2016.jpg"
-    },
-    {
-        "question": "Who sang: 'I believe I can fly' in the late 90s?",
-        "choices": ["Usher", "R. Kelly", "Brian McKnight", "Tyrese"],
-        "answer_index": 1,
-        "image_url": "https://upload.wikimedia.org/wikipedia/commons/5/54/RKelly.jpg"
-    },
-    {
-        "question": "Which artist released 'Lose Yourself' in 2002?",
-        "choices": ["Jay-Z", "Eminem", "Nas", "50 Cent"],
-        "answer_index": 1,
-        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d8/Eminem_Concert_2014.jpg/330px-Eminem_Concert_2014.jpg"
+        "image_url": "outkast.jpg"
     },
     {
         "question": "Which band sang: 'Wonderwall' in the 90s?",
         "choices": ["Nirvana", "Oasis", "Radiohead", "Smashing Pumpkins"],
         "answer_index": 1,
-        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/Oasis_Manchester_2005.jpg/330px-Oasis_Manchester_2005.jpg"
+        "image_url": "oasis.jpg"
     },
     {
-        "question": "'Danza Kuduro' was a global hit by which artist?",
-        "choices": ["Don Omar", "Daddy Yankee", "Luis Fonsi", "Romeo Santos"],
+        "question": "Who was known as the Queen of Tejano music?",
+        "choices": ["Selena", "Gloria Estefan", "Shakira", "Jennifer Lopez"],
         "answer_index": 0,
-        "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Don_Omar_2011.jpg/330px-Don_Omar_2011.jpg"
+        "image_url": "selena.jpg"
+    },
+    {
+        "question": "Who sang 'Oops!... I Did It Again'?",
+        "choices": ["Christina Aguilera", "Jessica Simpson", "Britney Spears", "Mandy Moore"],
+        "answer_index": 2,
+        "image_url": "britney.jpg"
+    },
+    {
+        "question": "Which group released 'No Scrubs'?",
+        "choices": ["TLC", "En Vogue", "Destiny's Child", "Salt-N-Pepa"],
+        "answer_index": 0,
+        "image_url": "tlc.jpg"
+    },
+    {
+        "question": "Which artist sang 'Someone Like You'?",
+        "choices": ["Adele", "Taylor Swift", "Katy Perry", "Rihanna"],
+        "answer_index": 0,
+        "image_url": "adele.jpg"
+    },
+    {
+        "question": "Who released 'American Idiot' in 2004?",
+        "choices": ["Green Day", "Blink-182", "The Offspring", "Fall Out Boy"],
+        "answer_index": 0,
+        "image_url": "greenday.jpg"
+    },
+    {
+        "question": "Which rapper is known for the song 'Lose Yourself'?",
+        "choices": ["Jay-Z", "Eminem", "Nas", "50 Cent"],
+        "answer_index": 1,
+        "image_url": "eminem.jpg"
+    },
+    {
+        "question": "Who made the reggaeton hit 'Danza Kuduro'?",
+        "choices": ["Don Omar", "Daddy Yankee", "Bad Bunny", "Nicky Jam"],
+        "answer_index": 0,
+        "image_url": "don.jpg"
     }
 ]
+
 
 
 current_index = -1
