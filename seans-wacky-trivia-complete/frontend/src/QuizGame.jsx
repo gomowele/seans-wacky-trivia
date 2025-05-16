@@ -8,7 +8,7 @@ const PRELOADED_ICONS = [
 ];
 
 export default function QuizGame() {
-  const [question, setQuestion] = useState(null);
+  const [questionData, setQuestionData] = useState(null);
   const [selected, setSelected] = useState(null);
   const [answerShown, setAnswerShown] = useState(false);
   const [score, setScore] = useState(0);
@@ -19,7 +19,9 @@ export default function QuizGame() {
       .then(res => res.json())
       .then(data => {
         console.log("Fetched question:", data);
-        setQuestion(data);
+        if (data.status === "ok") {
+          setQuestionData(data.question);
+        }
       })
       .catch(err => console.error("Failed to load question:", err));
   }, []);
@@ -36,25 +38,28 @@ export default function QuizGame() {
   const handleAnswer = (choice) => {
     if (!answerShown) {
       setSelected(choice);
-      if (choice === question.correct_answer) setScore(score + 1);
+      const correctAnswer = questionData.choices[questionData.answer_index];
+      if (choice === correctAnswer) setScore(score + 1);
       setAnswerShown(true);
     }
   };
 
-  if (!question) return <div>Loading question...</div>;
+  if (!questionData) return <div>Loading question...</div>;
+
+  const correctAnswer = questionData.choices[questionData.answer_index];
 
   return (
     <div className="quiz-container">
       <h1>Sean’s Wacky Trivia 🎶</h1>
       <div className="question-box">
-        <h2>{question.text || 'No question text provided.'}</h2>
+        <h2>{questionData.question || 'No question text provided.'}</h2>
         <div className="choices">
-          {question.choices?.length > 0 ? (
-            question.choices.map((c, i) => (
+          {questionData.choices?.length > 0 ? (
+            questionData.choices.map((c, i) => (
               <button
                 key={i}
                 onClick={() => handleAnswer(c)}
-                className={answerShown && c === question.correct_answer ? 'correct' : ''}
+                className={answerShown && c === correctAnswer ? 'correct' : ''}
                 disabled={answerShown}
               >
                 {c}
@@ -67,10 +72,10 @@ export default function QuizGame() {
         <div className="timer">Time left: {timeLeft}s</div>
         {answerShown && (
           <div className="answer-display">
-            <p>Correct Answer: {question.correct_answer}</p>
-            {question.image_url && (
+            <p>Correct Answer: {correctAnswer}</p>
+            {questionData.image_url && (
               <img
-                src={question.image_url}
+                src={questionData.image_url}
                 alt="answer visual"
                 className="answer-image"
                 onError={(e) => (e.target.style.display = 'none')}
