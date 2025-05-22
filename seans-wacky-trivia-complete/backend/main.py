@@ -56,7 +56,7 @@ questions = [
         "question": "Who released the reggaeton hit 'Dile'?",
         "choices": ["Don Omar", "Daddy Yankee", "Nicky Jam", "Wisin"],
         "answer_index": 0,
-        "image_url": "donomar.jpg"
+        "image_url": "don.jpg"
     },
     {
         "question": "Which rapper released 'Lose Yourself'?",
