@@ -19,9 +19,12 @@ export default function QuizGame({ nickname, icon, onReset }) {
     fetch(`${API_BASE}/state`)
       .then(res => res.json())
       .then(data => {
+        if (data.question_id && data.question_id !== currentQuestionId) {
+          setSelectedAnswer(null);
+          setCurrentQuestionId(data.question_id);
+        }
         setGameState(data);
         setGameStarted(data.started);
-        setCurrentQuestionId(data.question_id);
       });
   };
 
@@ -41,13 +44,6 @@ export default function QuizGame({ nickname, icon, onReset }) {
   }, []);
 
   useEffect(() => {
-    if (gameState?.question_id !== currentQuestionId) {
-      setSelectedAnswer(null);
-      setCurrentQuestionId(gameState?.question_id);
-    }
-  }, [gameState]);
-
-  useEffect(() => {
     if (!hasJoined) return;
 
     if (!gameStarted) {
@@ -60,8 +56,8 @@ export default function QuizGame({ nickname, icon, onReset }) {
       leaderboardAudio.current?.play();
     } else {
       waitingAudio.current?.pause();
-      questionAudio.current?.play();
       leaderboardAudio.current?.pause();
+      questionAudio.current?.play();
     }
   }, [hasJoined, gameStarted, gameState?.finished]);
 
@@ -124,7 +120,7 @@ export default function QuizGame({ nickname, icon, onReset }) {
 
   if (!gameState || !gameState.question) return <div className="quiz-container">Loading question...</div>;
 
-  const { question, choices, answer_index, image_url, show_answer, scores } = gameState;
+  const { question, choices, answer_index, image_url, show_answer, scores, question_id } = gameState;
   const correctAnswer = choices[answer_index];
   const playerScore = scores[nickname]?.score || 0;
 
