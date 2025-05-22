@@ -34,6 +34,13 @@ export default function QuizGame({ nickname, icon, onReset }) {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    // Reset selected answer on new question
+    if (gameState?.question) {
+      setSelectedAnswer(null);
+    }
+  }, [gameState?.question]);
+
   const handleAnswer = (choice) => {
     if (!gameState?.show_answer && selectedAnswer === null) {
       setSelectedAnswer(choice);
@@ -110,7 +117,7 @@ export default function QuizGame({ nickname, icon, onReset }) {
           <button
             key={i}
             onClick={() => handleAnswer(choice)}
-            disabled={show_answer} // <-- FIXED HERE
+            disabled={show_answer}
             className={
               show_answer
                 ? choice === correctAnswer
