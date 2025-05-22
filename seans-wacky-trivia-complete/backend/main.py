@@ -1,138 +1,121 @@
-from flask import Flask, request, jsonify
-from flask_cors import CORS
-import time
-import threading
+from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 import random
+import threading
+import time
 
-app = Flask(__name__)
-CORS(app)
+app = FastAPI()
 
-# === Game State ===
-players = {}  # { nickname: {score, icon} }
-questions = []
-current_question_index = -1
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+class Player(BaseModel):
+    nickname: str
+    icon: str
+
+class Answer(BaseModel):
+    nickname: str
+    answer: str
+
+players = {}
+scores = {}
 current_question = None
-start_time = None
-question_duration = 13  # seconds
-answer_reveal_duration = 7  # seconds
-reveal_time = None
-
+answer_lock = threading.Lock()
+show_answer = False
 game_started = False
-lock = threading.Lock()
+timer = 13
 
-# === Load questions ===
-def load_questions():
-    global questions
-    questions = [
-        {
-            "question": "Which artist released 'Rolling in the Deep' in 2010?",
-            "choices": ["Adele", "P!nk", "Kelly Clarkson", "Lorde"],
-            "answer_index": 0,
-            "image_url": "adele.jpg"
-        },
-        {
-            "question": "'Hey Ya!' was a 2003 hit from which hip-hop duo?",
-            "choices": ["OutKast", "The Roots", "UGK", "Mobb Deep"],
-            "answer_index": 0,
-            "image_url": "outkast.jpg"
-        },
-        # ... Add more questions as needed
-    ]
-    random.shuffle(questions)
+questions = [
+    {
+        "question": "Which artist released 'Rolling in the Deep' in 2010?",
+        "choices": ["Adele", "P!nk", "Kelly Clarkson", "Lorde"],
+        "answer_index": 0,
+        "image_url": "adele.jpg"
+    },
+    {
+        "question": "'Hey Ya!' was a 2003 hit from which hip-hop duo?",
+        "choices": ["OutKast", "The Roots", "UGK", "Mobb Deep"],
+        "answer_index": 0,
+        "image_url": "outkast.jpg"
+    },
+    # Add more questions as needed
+]
 
-load_questions()
+question_index = 0
+submitted_answers = {}
 
-# === API Endpoints ===
+@app.post("/join")
+def join_game(player: Player):
+    players[player.nickname] = player.icon
+    scores[player.nickname] = 0
+    return {"status": "joined"}
 
-@app.route('/join', methods=['POST'])
-def join():
-    data = request.json
-    nickname = data['nickname']
-    icon = data['icon']
-    with lock:
-        if nickname not in players:
-            players[nickname] = {"score": 0, "icon": icon}
-    return jsonify({"status": "joined", "players": list(players.keys())})
-
-@app.route('/start', methods=['POST'])
-def start():
-    global game_started, current_question_index, start_time
-    with lock:
-        game_started = True
-        current_question_index = 0
-        start_time = time.time()
-        load_next_question()
-    return jsonify({"status": "started"})
-
-@app.route('/state', methods=['GET'])
+@app.get("/state")
 def get_state():
-    with lock:
-        if not game_started:
-            return jsonify({"status": "waiting"})
+    if not current_question:
+        return {"started": game_started, "question": None}
+    return {
+        "started": game_started,
+        "question": current_question["question"],
+        "choices": current_question["choices"],
+        "answer_index": current_question["answer_index"],
+        "image_url": current_question["image_url"],
+        "show_answer": show_answer,
+        "scores": scores,
+        "timer": timer
+    }
 
-        now = time.time()
-        time_left = max(0, question_duration - int(now - start_time))
+@app.post("/start")
+def start_game():
+    global game_started, question_index, current_question
+    game_started = True
+    question_index = 0
+    current_question = questions[question_index]
+    threading.Thread(target=question_timer).start()
+    return {"status": "started"}
 
-        show_answer = (now - start_time) >= question_duration
-        next_ready = (now - start_time) >= (question_duration + answer_reveal_duration)
+@app.post("/answer")
+def submit_answer(answer: Answer):
+    with answer_lock:
+        if not show_answer and answer.nickname not in submitted_answers:
+            submitted_answers[answer.nickname] = answer.answer
+    return {"status": "received"}
 
-        if next_ready:
-            next_question = load_next_question()
-            if not next_question:
-                return jsonify({"status": "finished"})
+@app.post("/reset")
+def reset_game():
+    global players, scores, current_question, show_answer, game_started, timer, submitted_answers
+    players = {}
+    scores = {}
+    current_question = None
+    show_answer = False
+    game_started = False
+    timer = 13
+    submitted_answers = {}
+    return {"status": "reset"}
 
-        return jsonify({
-            "status": "active",
-            "question": current_question,
-            "time_left": time_left,
-            "show_answer": show_answer,
-            "players": players
-        })
-
-@app.route('/answer', methods=['POST'])
-def answer():
-    global players
-    data = request.json
-    nickname = data['nickname']
-    choice = data['choice']
-
-    with lock:
-        if current_question is None or nickname not in players:
-            return jsonify({"status": "error"})
-
-        correct_choice = current_question['choices'][current_question['answer_index']]
-        if choice == correct_choice:
-            now = time.time()
-            time_taken = now - start_time
-            time_taken = min(time_taken, question_duration)
-            score_add = round(((question_duration - time_taken) / question_duration) * 100)
-            players[nickname]['score'] += score_add
-
-        return jsonify({"status": "answered"})
-
-@app.route('/reset', methods=['POST'])
-def reset():
-    global players, current_question_index, current_question, game_started, start_time
-    with lock:
-        players = {}
-      
-        current_question_index = -1
+def question_timer():
+    global timer, show_answer, submitted_answers, question_index, current_question
+    timer = 13
+    show_answer = False
+    submitted_answers = {}
+    while timer > 0:
+        time.sleep(1)
+        timer -= 1
+    show_answer = True
+    correct = current_question["choices"][current_question["answer_index"]]
+    for player, ans in submitted_answers.items():
+        if ans == correct:
+            scores[player] += round((timer / 13) * 100)
+    time.sleep(7)  # Show answer and leaderboard for 7 seconds
+    question_index += 1
+    if question_index < len(questions):
+        current_question = questions[question_index]
+        threading.Thread(target=question_timer).start()
+    else:
         current_question = None
-        game_started = False
-        start_time = None
-        load_questions()
-    return jsonify({"status": "reset"})
-
-# === Helper ===
-def load_next_question():
-    global current_question_index, current_question, start_time
-    current_question_index += 1
-    if current_question_index >= len(questions):
-        return False
-    current_question = questions[current_question_index]
-    start_time = time.time()
-    return True
-
-# === Run ===
-if __name__ == '__main__':
-    app.run(debug=True)
