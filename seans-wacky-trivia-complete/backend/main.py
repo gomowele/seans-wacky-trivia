@@ -3,6 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.background import BackgroundTasks
 import threading, time
+import random
+import asyncio
 
 app = FastAPI()
 
@@ -39,42 +41,84 @@ questions = [
         "image_url": "outkast.jpg"
     },
     {
-        "question": "Which band sang: 'Wonderwall' in the 90s?",
+        "question": "Which band sang 'Wonderwall' in the 90s?",
         "choices": ["Nirvana", "Oasis", "Radiohead", "Smashing Pumpkins"],
         "answer_index": 1,
         "image_url": "oasis.jpg"
+    },
+    {
+        "question": "Who was known as the Queen of Tejano music?",
+        "choices": ["Selena", "Gloria Estefan", "Shakira", "Jennifer Lopez"],
+        "answer_index": 0,
+        "image_url": "selena.jpg"
+    },
+    {
+        "question": "Who sang 'Danza Kuduro'?",
+        "choices": ["Don Omar", "Daddy Yankee", "Ozuna", "Luis Fonsi"],
+        "answer_index": 0,
+        "image_url": "don.jpg"
+    },
+    {
+        "question": "Which rapper is known for 'Lose Yourself'?",
+        "choices": ["Eminem", "Jay-Z", "50 Cent", "Nas"],
+        "answer_index": 0,
+        "image_url": "eminem.jpg"
+    },
+    {
+        "question": "Which Latin trap artist released 'Tití Me Preguntó'?",
+        "choices": ["Bad Bunny", "Anuel AA", "J Balvin", "Maluma"],
+        "answer_index": 0,
+        "image_url": "badbunny.jpg"
+    },
+    {
+        "question": "Which artist released 'Ignition (Remix)'?",
+        "choices": ["R. Kelly", "Usher", "Ne-Yo", "T-Pain"],
+        "answer_index": 0,
+        "image_url": "rkelly.jpg"
+    },
+    {
+        "question": "Who released 'Boulevard of Broken Dreams'?",
+        "choices": ["Green Day", "Blink-182", "My Chemical Romance", "Fall Out Boy"],
+        "answer_index": 0,
+        "image_url": "greenday.jpg"
+    },
+    {
+        "question": "Which group sang 'No Scrubs'?",
+        "choices": ["TLC", "Destiny's Child", "En Vogue", "SWV"],
+        "answer_index": 0,
+        "image_url": "tlc.jpg"
     }
-    # Add more as needed
 ]
 
+
 def game_loop():
-    while state["started"] and state["question_index"] < len(questions):
+    while True:
         with state["lock"]:
+            if not state["started"] or state["question_index"] >= len(questions):
+                state["started"] = False
+                break
             state["timer"] = 13
             state["show_answer"] = False
             state["answers"] = {}
 
         # Countdown
-        while state["timer"] > 0:
+        for _ in range(13):
             time.sleep(1)
             with state["lock"]:
                 state["timer"] -= 1
 
-        # Reveal answer
+        # Show answer and compute scores
         with state["lock"]:
             state["show_answer"] = True
             correct = questions[state["question_index"]]["choices"][questions[state["question_index"]]["answer_index"]]
             for name, answer in state["answers"].items():
                 if answer == correct:
-                    state["players"][name]["score"] += int((state["timer"] / 13) * 100)
+                    state["players"][name]["score"] += 100
 
-        time.sleep(7)
+        time.sleep(7)  # Show correct answer
+
         with state["lock"]:
             state["question_index"] += 1
-
-    with state["lock"]:
-        state["started"] = False
-
 
 @app.post("/join")
 async def join_game(request: Request):
@@ -86,16 +130,15 @@ async def join_game(request: Request):
             state["players"][name] = {"score": 0, "icon": icon}
     return {"status": "joined"}
 
-
 @app.post("/start")
 def start_game(background_tasks: BackgroundTasks):
     with state["lock"]:
         state["started"] = True
         state["question_index"] = 0
-        state["players"] = {name: {"score": 0, "icon": player["icon"]} for name, player in state["players"].items()}
+        for name in state["players"]:
+            state["players"][name]["score"] = 0
     background_tasks.add_task(game_loop)
     return {"status": "started"}
-
 
 @app.post("/answer")
 async def submit_answer(request: Request):
@@ -106,7 +149,6 @@ async def submit_answer(request: Request):
         if name in state["players"] and not state["show_answer"]:
             state["answers"][name] = answer
     return {"status": "recorded"}
-
 
 @app.post("/reset")
 def reset_game():
@@ -119,24 +161,22 @@ def reset_game():
         state["answers"] = {}
     return {"status": "reset complete"}
 
-
 @app.get("/state")
 def get_state():
     with state["lock"]:
         if state["question_index"] >= len(questions):
-            return {"finished": True}
+            return {"finished": True, "scores": state["players"]}
+
         q = questions[state["question_index"]]
         return {
             "question": q["question"],
             "choices": q["choices"],
-            "answer_index": q["answer_index"],
             "image_url": q["image_url"],
             "timer": state["timer"],
             "show_answer": state["show_answer"],
             "started": state["started"],
-            "scores": {name: player["score"] for name, player in state["players"].items()}
+            "scores": state["players"]
         }
-
 
 @app.get("/")
 def root():
