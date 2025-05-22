@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './QuizGame.css';
 
 const API_BASE = 'https://trivia-backend-79q3.onrender.com';
@@ -9,6 +9,11 @@ export default function QuizGame({ nickname, icon, onReset }) {
   const [score, setScore] = useState(0);
   const [hasJoined, setHasJoined] = useState(false);
   const [gameStarted, setGameStarted] = useState(false);
+  const [currentQuestionId, setCurrentQuestionId] = useState(null);
+
+  const waitingAudio = useRef(null);
+  const questionAudio = useRef(null);
+  const leaderboardAudio = useRef(null);
 
   const fetchState = () => {
     fetch(`${API_BASE}/state`)
@@ -16,9 +21,7 @@ export default function QuizGame({ nickname, icon, onReset }) {
       .then(data => {
         setGameState(data);
         setGameStarted(data.started);
-        if (data.scores[nickname]) {
-          setScore(data.scores[nickname].score);
-        }
+        setCurrentQuestionId(data.question_id);
       });
   };
 
@@ -38,15 +41,33 @@ export default function QuizGame({ nickname, icon, onReset }) {
   }, []);
 
   useEffect(() => {
-    // Reset selected answer on new question
-    if (gameState?.question_id !== undefined && gameState?.question_id !== selectedAnswer?.questionId) {
+    if (gameState?.question_id !== currentQuestionId) {
       setSelectedAnswer(null);
+      setCurrentQuestionId(gameState?.question_id);
     }
   }, [gameState]);
 
+  useEffect(() => {
+    if (!hasJoined) return;
+
+    if (!gameStarted) {
+      waitingAudio.current?.play();
+      questionAudio.current?.pause();
+      leaderboardAudio.current?.pause();
+    } else if (gameState?.finished) {
+      waitingAudio.current?.pause();
+      questionAudio.current?.pause();
+      leaderboardAudio.current?.play();
+    } else {
+      waitingAudio.current?.pause();
+      questionAudio.current?.play();
+      leaderboardAudio.current?.pause();
+    }
+  }, [hasJoined, gameStarted, gameState?.finished]);
+
   const handleAnswer = (choice) => {
     if (!gameState?.show_answer && selectedAnswer === null) {
-      setSelectedAnswer({ choice, questionId: gameState.question_id });
+      setSelectedAnswer(choice);
       fetch(`${API_BASE}/answer`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -69,6 +90,7 @@ export default function QuizGame({ nickname, icon, onReset }) {
     const leaderboard = gameState.leaderboard || [];
     return (
       <div className="quiz-container">
+        <audio ref={leaderboardAudio} src="/music/leader board.mp3" loop />
         <h2>🎉 Final Results</h2>
         <div className="leaderboard">
           <ul>
@@ -91,6 +113,7 @@ export default function QuizGame({ nickname, icon, onReset }) {
   if (!gameStarted) {
     return (
       <div className="quiz-container">
+        <audio ref={waitingAudio} src="/music/waiting screen.mp3" loop autoPlay />
         <h1>Welcome, {nickname}!</h1>
         <img src={icon} alt="player" className="avatar" />
         <p>Waiting to start Sean's Wacky Trivia 🎶</p>
@@ -107,6 +130,8 @@ export default function QuizGame({ nickname, icon, onReset }) {
 
   return (
     <div className="quiz-container">
+      <audio ref={questionAudio} src="/music/questions music.mp3" loop autoPlay />
+
       <div className="quiz-header">
         <img src={icon} alt="player" className="avatar" />
         <h2>{nickname}</h2>
@@ -120,12 +145,12 @@ export default function QuizGame({ nickname, icon, onReset }) {
           <button
             key={i}
             onClick={() => handleAnswer(choice)}
-            disabled={show_answer || selectedAnswer?.choice !== null}
+            disabled={show_answer || selectedAnswer !== null}
             className={
               show_answer
                 ? choice === correctAnswer
                   ? 'correct'
-                  : selectedAnswer?.choice === choice
+                  : choice === selectedAnswer
                   ? 'wrong'
                   : ''
                 : ''
