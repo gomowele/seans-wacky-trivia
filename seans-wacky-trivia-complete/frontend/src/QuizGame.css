@@ -104,3 +104,31 @@ button:disabled {
   background-color: #ccc;
   cursor: not-allowed;
 }
+.leaderboard {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.leaderboard ul {
+  list-style: none;
+  padding: 0;
+}
+
+.leader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0.5rem 0;
+}
+
+.leader img.avatar.small {
+  width: 40px;
+  height: 40px;
+  margin-right: 0.5rem;
+  border-radius: 50%;
+}
+
+.top-player {
+  color: gold;
+  font-weight: bold;
+}
