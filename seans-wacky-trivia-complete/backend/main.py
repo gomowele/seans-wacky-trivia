@@ -107,8 +107,10 @@ def game_loop():
 
         with state["lock"]:
             state["show_answer"] = True
-            correct = questions[state["question_index"]]["choices"][questions[state["question_index"]]["answer_index"]]
-            for name, answer in state["answers"].items():
+            correct_index = questions[state["question_index"]]["answer_index"]
+            correct = questions[state["question_index"]]["choices"][correct_index]
+            for name in state["players"]:
+                answer = state["answers"].get(name)
                 if answer == correct:
                     state["players"][name]["score"] += 100
 
@@ -162,7 +164,12 @@ def reset_game():
 def get_state():
     with state["lock"]:
         if state["question_index"] >= len(questions):
-            return {"finished": True, "scores": state["players"]}
+            top_score = max(state["players"].values(), key=lambda p: p["score"], default={"score": 0})
+            leaderboard = [
+                {"name": name, "score": p["score"], "icon": p["icon"], "top": p["score"] == top_score["score"]}
+                for name, p in state["players"].items()
+            ]
+            return {"finished": True, "leaderboard": leaderboard}
 
         q = questions[state["question_index"]]
         return {
