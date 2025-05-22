@@ -16,6 +16,9 @@ export default function QuizGame({ nickname, icon, onReset }) {
       .then(data => {
         setGameState(data);
         setGameStarted(data.started);
+        if (data.scores[nickname]) {
+          setScore(data.scores[nickname].score);
+        }
       });
   };
 
@@ -36,14 +39,14 @@ export default function QuizGame({ nickname, icon, onReset }) {
 
   useEffect(() => {
     // Reset selected answer on new question
-    if (gameState?.question) {
+    if (gameState?.question_id !== undefined && gameState?.question_id !== selectedAnswer?.questionId) {
       setSelectedAnswer(null);
     }
-  }, [gameState?.question]);
+  }, [gameState]);
 
   const handleAnswer = (choice) => {
     if (!gameState?.show_answer && selectedAnswer === null) {
-      setSelectedAnswer(choice);
+      setSelectedAnswer({ choice, questionId: gameState.question_id });
       fetch(`${API_BASE}/answer`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -117,12 +120,12 @@ export default function QuizGame({ nickname, icon, onReset }) {
           <button
             key={i}
             onClick={() => handleAnswer(choice)}
-            disabled={show_answer}
+            disabled={show_answer || selectedAnswer?.choice !== null}
             className={
               show_answer
                 ? choice === correctAnswer
                   ? 'correct'
-                  : choice === selectedAnswer
+                  : selectedAnswer?.choice === choice
                   ? 'wrong'
                   : ''
                 : ''
