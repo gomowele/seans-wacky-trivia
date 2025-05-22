@@ -90,7 +90,7 @@ export default function QuizGame({ nickname, icon, onReset }) {
     const leaderboard = gameState.leaderboard || [];
     return (
       <div className="quiz-container">
-        <audio ref={leaderboardAudio} src="/music/leader board.mp3" loop />
+        <audio ref={leaderboardAudio} src="/music/leader board.mp3" loop autoPlay />
         <h2>🎉 Final Results</h2>
         <div className="leaderboard">
           <ul>
