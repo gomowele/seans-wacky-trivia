@@ -90,7 +90,6 @@ questions = [
     }
 ]
 
-
 def game_loop():
     while True:
         with state["lock"]:
@@ -125,6 +124,8 @@ async def join_game(request: Request):
     data = await request.json()
     name = data.get("nickname")
     icon = data.get("icon")
+    if not name:
+        return JSONResponse(status_code=400, content={"error": "Missing nickname"})
     with state["lock"]:
         if name not in state["players"]:
             state["players"][name] = {"score": 0, "icon": icon}
