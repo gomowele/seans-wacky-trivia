@@ -1,120 +1,96 @@
 // QuizGame.jsx
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import './QuizGame.css';
 
 const API_BASE = 'https://trivia-backend-79q3.onrender.com';
 
 export default function QuizGame({ nickname, icon, onReset }) {
-  const [questionData, setQuestionData] = useState(null);
-  const [selected, setSelected] = useState(null);
-  const [answerShown, setAnswerShown] = useState(false);
+  const [gameState, setGameState] = useState(null);
+  const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [score, setScore] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(13);
-  const [isFinished, setIsFinished] = useState(false);
+  const [hasJoined, setHasJoined] = useState(false);
   const [gameStarted, setGameStarted] = useState(false);
-  const [showLeaderboard, setShowLeaderboard] = useState(false);
-  const [players, setPlayers] = useState([]);
-  const audioRef = useRef(null);
 
-  const fetchQuestion = () => {
-    fetch(`${API_BASE}/next-question`, { method: 'POST' })
+  const fetchState = () => {
+    fetch(`${API_BASE}/state`)
       .then(res => res.json())
       .then(data => {
-        if (data.status === 'ok') {
-          setQuestionData(data.question);
-          setAnswerShown(false);
-          setTimeLeft(13);
-          setSelected(null);
-        } else {
-          setIsFinished(true);
-        }
+        setGameState(data);
+        setGameStarted(data.started);
       });
   };
 
   useEffect(() => {
-    if (gameStarted) {
-      fetchQuestion();
-      if (audioRef.current) audioRef.current.play();
+    if (nickname && icon && !hasJoined) {
+      fetch(`${API_BASE}/join`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nickname, icon })
+      }).then(() => setHasJoined(true));
     }
-  }, [gameStarted]);
+  }, [nickname, icon, hasJoined]);
 
   useEffect(() => {
-    if (!gameStarted || !questionData || answerShown) return;
-
-    if (timeLeft > 0) {
-      const timer = setTimeout(() => setTimeLeft(t => t - 1), 1000);
-      return () => clearTimeout(timer);
-    } else {
-      setAnswerShown(true);
-      setShowLeaderboard(true);
-      setTimeout(() => {
-        setShowLeaderboard(false);
-        fetchQuestion();
-      }, 7000);
-    }
-  }, [timeLeft, answerShown, gameStarted, questionData]);
+    const interval = setInterval(fetchState, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleAnswer = (choice) => {
-    if (!answerShown && timeLeft > 0) {
-      setSelected(choice);
-      const correctAnswer = questionData.choices[questionData.answer_index];
-      if (choice === correctAnswer) {
-        const points = Math.round((timeLeft / 13) * 100);
-        setScore(score + points);
-        setPlayers(prev => [...prev, { nickname, score: score + points }]);
-      } else {
-        setPlayers(prev => [...prev, { nickname, score }]);
-      }
+    if (!gameState?.show_answer && selectedAnswer === null) {
+      setSelectedAnswer(choice);
+      fetch(`${API_BASE}/answer`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nickname, answer: choice })
+      });
     }
   };
 
+  const startGame = () => {
+    fetch(`${API_BASE}/start`, { method: 'POST' });
+  };
+
+  const resetGame = () => {
+    fetch(`${API_BASE}/reset`, { method: 'POST' }).then(onReset);
+  };
+
+  if (!hasJoined) return <div className="quiz-container">Joining game...</div>;
   if (!gameStarted) {
     return (
       <div className="quiz-container">
         <h1>Welcome, {nickname}!</h1>
         <img src={icon} alt="player" className="avatar" />
-        <p>Get ready to play Sean's Wacky Trivia 🎶</p>
-        <button onClick={() => setGameStarted(true)}>Start Game</button>
-        <audio ref={audioRef} src="/audio/theme.mp3" loop preload="auto" />
+        <p>Waiting to start Sean's Wacky Trivia 🎶</p>
+        <button onClick={startGame}>Start Game</button>
       </div>
     );
   }
+  if (!gameState || !gameState.question) return <div className="quiz-container">Loading question...</div>;
 
-  if (isFinished) {
-    return (
-      <div className="quiz-container">
-        <h2>🎉 Game Over!</h2>
-        <p>Final Score: {score}</p>
-        <button onClick={onReset}>Switch Player</button>
-      </div>
-    );
-  }
-
-  if (!questionData) return <div>Loading question...</div>;
-
-  const correctAnswer = questionData.choices[questionData.answer_index];
+  const { question, choices, answer_index, image_url, show_answer, scores } = gameState;
+  const correctAnswer = choices[answer_index];
+  const playerScore = scores[nickname] || 0;
 
   return (
     <div className="quiz-container">
       <div className="quiz-header">
         <img src={icon} alt="player" className="avatar" />
         <h2>{nickname}</h2>
-        <button className="switch-player" onClick={onReset}>Switch Player</button>
+        <button className="switch-player" onClick={resetGame}>Switch Player</button>
       </div>
 
-      <h3>{questionData.question}</h3>
-
+      <h3>{question}</h3>
       <div className="choices">
-        {questionData.choices.map((choice, i) => (
+        {choices.map((choice, i) => (
           <button
             key={i}
             onClick={() => handleAnswer(choice)}
-            disabled={answerShown}
+            disabled={show_answer || selectedAnswer !== null}
             className={
-              answerShown
+              show_answer
                 ? choice === correctAnswer
                   ? 'correct'
-                  : choice === selected
+                  : choice === selectedAnswer
                   ? 'wrong'
                   : ''
                 : ''
@@ -125,13 +101,13 @@ export default function QuizGame({ nickname, icon, onReset }) {
         ))}
       </div>
 
-      <div className="timer">Time left: {timeLeft}s</div>
+      <div className="timer">Time left: {gameState.timer}s</div>
 
-      {answerShown && (
+      {show_answer && (
         <div className="answer-section">
           <p>Correct Answer: {correctAnswer}</p>
           <img
-            src={`/images/${questionData.image_url || 'default.png'}`}
+            src={`/images/${image_url || 'default.png'}`}
             alt="Answer Visual"
             className="answer-image"
             onError={(e) => {
@@ -139,21 +115,16 @@ export default function QuizGame({ nickname, icon, onReset }) {
               e.target.src = '/images/default.png';
             }}
           />
-          <p>Score: {score}</p>
-        </div>
-      )}
+          <p>Your Score: {playerScore}</p>
 
-      {showLeaderboard && (
-        <div className="leaderboard">
-          <h4>Leaderboard</h4>
-          <ul>
-            {[...players]
-              .sort((a, b) => b.score - a.score)
-              .slice(0, 5)
-              .map((p, i) => (
-                <li key={i}>{p.nickname}: {p.score}</li>
+          <div className="leaderboard">
+            <h4>Leaderboard</h4>
+            <ul>
+              {Object.entries(scores).sort((a, b) => b[1] - a[1]).map(([player, score]) => (
+                <li key={player}>{player}: {score}</li>
               ))}
-          </ul>
+            </ul>
+          </div>
         </div>
       )}
     </div>
