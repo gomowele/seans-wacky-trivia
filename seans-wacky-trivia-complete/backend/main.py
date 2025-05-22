@@ -67,7 +67,7 @@ questions = [
         "question": "Who released the hit 'Tití Me Preguntó'?",
         "choices": ["Bad Bunny", "J Balvin", "Ozuna", "Anuel AA"],
         "answer_index": 0,
-        "image_url": "badbunny.jpg"
+        "image_url": "bad.jpg"
     },
     {
         "question": "Which R&B artist is known for the song 'Ignition (Remix)'?",
