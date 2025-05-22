@@ -3,8 +3,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.background import BackgroundTasks
 import threading, time
-import random
-import asyncio
 
 app = FastAPI()
 
@@ -24,6 +22,7 @@ state = {
     "started": False,
     "timer": 13,
     "answers": {},
+    "question_id": 0,
     "lock": threading.Lock()
 }
 
@@ -99,6 +98,7 @@ def game_loop():
             state["timer"] = 13
             state["show_answer"] = False
             state["answers"] = {}
+            state["question_id"] += 1
 
         for _ in range(13):
             time.sleep(1)
@@ -134,6 +134,7 @@ def start_game(background_tasks: BackgroundTasks):
     with state["lock"]:
         state["started"] = True
         state["question_index"] = 0
+        state["question_id"] = 0
         for name in state["players"]:
             state["players"][name]["score"] = 0
     background_tasks.add_task(game_loop)
@@ -146,7 +147,8 @@ async def submit_answer(request: Request):
     answer = data.get("answer")
     with state["lock"]:
         if name in state["players"] and not state["show_answer"]:
-            state["answers"][name] = answer
+            if name not in state["answers"]:
+                state["answers"][name] = answer
     return {"status": "recorded"}
 
 @app.post("/reset")
@@ -158,6 +160,7 @@ def reset_game():
         state["started"] = False
         state["timer"] = 13
         state["answers"] = {}
+        state["question_id"] = 0
     return {"status": "reset complete"}
 
 @app.get("/state")
@@ -180,7 +183,8 @@ def get_state():
             "timer": state["timer"],
             "show_answer": state["show_answer"],
             "started": state["started"],
-            "scores": state["players"]
+            "scores": state["players"],
+            "question_id": state["question_id"]
         }
 
 @app.get("/")
