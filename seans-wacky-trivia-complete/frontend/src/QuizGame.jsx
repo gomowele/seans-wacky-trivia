@@ -59,7 +59,7 @@ export default function QuizGame({ nickname, icon, onReset }) {
       leaderboardAudio.current?.pause();
       questionAudio.current?.play();
     }
-  }, [hasJoined, gameStarted, gameState?.finished]);
+  }, [hasJoined, gameStarted, gameState?.finished, currentQuestionId]);
 
   const handleAnswer = (choice) => {
     if (!gameState?.show_answer && selectedAnswer === null) {
@@ -80,7 +80,14 @@ export default function QuizGame({ nickname, icon, onReset }) {
     fetch(`${API_BASE}/reset`, { method: 'POST' }).then(onReset);
   };
 
-  if (!hasJoined) return <div className="quiz-container">Joining game...</div>;
+  if (!hasJoined) {
+    return (
+      <div className="quiz-container">
+        <audio ref={waitingAudio} src="/music/waiting screen.mp3" loop autoPlay />
+        Joining game...
+      </div>
+    );
+  }
 
   if (gameState?.finished) {
     const leaderboard = gameState.leaderboard || [];
