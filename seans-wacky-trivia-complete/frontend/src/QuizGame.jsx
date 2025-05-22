@@ -110,7 +110,7 @@ export default function QuizGame({ nickname, icon, onReset }) {
           <button
             key={i}
             onClick={() => handleAnswer(choice)}
-            disabled={show_answer || selectedAnswer !== null}
+            disabled={show_answer} // <-- FIXED HERE
             className={
               show_answer
                 ? choice === correctAnswer
