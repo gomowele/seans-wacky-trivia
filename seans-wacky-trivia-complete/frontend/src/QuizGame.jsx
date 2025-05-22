@@ -6,6 +6,7 @@ const API_BASE = 'https://trivia-backend-79q3.onrender.com';
 export default function QuizGame({ nickname, icon, onReset }) {
   const [gameState, setGameState] = useState(null);
   const [selectedAnswer, setSelectedAnswer] = useState(null);
+  const [score, setScore] = useState(0);
   const [hasJoined, setHasJoined] = useState(false);
   const [gameStarted, setGameStarted] = useState(false);
 
@@ -15,11 +16,6 @@ export default function QuizGame({ nickname, icon, onReset }) {
       .then(data => {
         setGameState(data);
         setGameStarted(data.started);
-
-        // reset selected answer if new question is shown
-        if (data.question !== gameState?.question) {
-          setSelectedAnswer(null);
-        }
       });
   };
 
@@ -59,6 +55,29 @@ export default function QuizGame({ nickname, icon, onReset }) {
 
   if (!hasJoined) return <div className="quiz-container">Joining game...</div>;
 
+  if (gameState?.finished) {
+    const leaderboard = gameState.leaderboard || [];
+    return (
+      <div className="quiz-container">
+        <h2>🎉 Final Results</h2>
+        <div className="leaderboard">
+          <ul>
+            {leaderboard.map((player) => (
+              <li
+                key={player.name}
+                className={player.top ? 'leader top-player' : 'leader'}
+              >
+                <img src={player.icon} alt={player.name} className="avatar small" />
+                <span>{player.name}</span> – <strong>{player.score} pts</strong>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <button onClick={resetGame}>Play Again</button>
+      </div>
+    );
+  }
+
   if (!gameStarted) {
     return (
       <div className="quiz-container">
@@ -72,8 +91,9 @@ export default function QuizGame({ nickname, icon, onReset }) {
 
   if (!gameState || !gameState.question) return <div className="quiz-container">Loading question...</div>;
 
-  const { question, choices, image_url, show_answer, scores, timer } = gameState;
-  const correctAnswer = show_answer ? choices.find((c, i) => i === gameState.answer_index) : null;
+  const { question, choices, answer_index, image_url, show_answer, scores } = gameState;
+  const correctAnswer = choices[answer_index];
+  const playerScore = scores[nickname]?.score || 0;
 
   return (
     <div className="quiz-container">
@@ -106,11 +126,11 @@ export default function QuizGame({ nickname, icon, onReset }) {
         ))}
       </div>
 
-      <div className="timer">Time left: {timer}s</div>
+      <div className="timer">Time left: {gameState.timer}s</div>
 
       {show_answer && (
         <div className="answer-section">
-          <p>✅ Correct Answer: {correctAnswer}</p>
+          <p>Correct Answer: {correctAnswer}</p>
           <img
             src={`/images/${image_url || 'default.png'}`}
             alt="Answer Visual"
@@ -120,17 +140,16 @@ export default function QuizGame({ nickname, icon, onReset }) {
               e.target.src = '/images/default.png';
             }}
           />
-          <p>📊 Your Score: {scores[nickname]?.score || 0}</p>
+          <p>Your Score: {playerScore}</p>
 
           <div className="leaderboard">
             <h4>Leaderboard</h4>
             <ul>
               {Object.entries(scores)
-                .sort(([, a], [, b]) => b.score - a.score)
+                .sort((a, b) => b[1].score - a[1].score)
                 .map(([player, data]) => (
                   <li key={player}>
-                    <img src={data.icon} alt={player} className="avatar small" />
-                    {player}: {data.score}
+                    <img src={data.icon} alt={player} className="avatar small" /> {player}: {data.score} pts
                   </li>
                 ))}
             </ul>
