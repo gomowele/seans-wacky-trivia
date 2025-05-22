@@ -41,7 +41,7 @@ questions = [
         "image_url": "outkast.jpg"
     },
     {
-        "question": "Which band sang 'Wonderwall' in the 90s?",
+        "question": "Which band sang: 'Wonderwall' in the 90s?",
         "choices": ["Nirvana", "Oasis", "Radiohead", "Smashing Pumpkins"],
         "answer_index": 1,
         "image_url": "oasis.jpg"
@@ -53,39 +53,39 @@ questions = [
         "image_url": "selena.jpg"
     },
     {
-        "question": "Who sang 'Danza Kuduro'?",
-        "choices": ["Don Omar", "Daddy Yankee", "Ozuna", "Luis Fonsi"],
+        "question": "Who released the reggaeton hit 'Dile'?",
+        "choices": ["Don Omar", "Daddy Yankee", "Nicky Jam", "Wisin"],
         "answer_index": 0,
-        "image_url": "don.jpg"
+        "image_url": "donomar.jpg"
     },
     {
-        "question": "Which rapper is known for 'Lose Yourself'?",
-        "choices": ["Eminem", "Jay-Z", "50 Cent", "Nas"],
-        "answer_index": 0,
+        "question": "Which rapper released 'Lose Yourself'?",
+        "choices": ["Jay-Z", "Eminem", "Dr. Dre", "50 Cent"],
+        "answer_index": 1,
         "image_url": "eminem.jpg"
     },
     {
-        "question": "Which Latin trap artist released 'Tití Me Preguntó'?",
-        "choices": ["Bad Bunny", "Anuel AA", "J Balvin", "Maluma"],
+        "question": "Who released the hit 'Tití Me Preguntó'?",
+        "choices": ["Bad Bunny", "J Balvin", "Ozuna", "Anuel AA"],
         "answer_index": 0,
         "image_url": "badbunny.jpg"
     },
     {
-        "question": "Which artist released 'Ignition (Remix)'?",
-        "choices": ["R. Kelly", "Usher", "Ne-Yo", "T-Pain"],
-        "answer_index": 0,
+        "question": "Which R&B artist is known for the song 'Ignition (Remix)'?",
+        "choices": ["Usher", "Ne-Yo", "R. Kelly", "Chris Brown"],
+        "answer_index": 2,
         "image_url": "rkelly.jpg"
     },
     {
-        "question": "Who released 'Boulevard of Broken Dreams'?",
-        "choices": ["Green Day", "Blink-182", "My Chemical Romance", "Fall Out Boy"],
+        "question": "Who sang 'Boulevard of Broken Dreams'?",
+        "choices": ["Green Day", "Blink-182", "Linkin Park", "Sum 41"],
         "answer_index": 0,
         "image_url": "greenday.jpg"
     },
     {
-        "question": "Which group sang 'No Scrubs'?",
-        "choices": ["TLC", "Destiny's Child", "En Vogue", "SWV"],
-        "answer_index": 0,
+        "question": "Which group is known for 'No Scrubs'?",
+        "choices": ["Destiny's Child", "TLC", "En Vogue", "SWV"],
+        "answer_index": 1,
         "image_url": "tlc.jpg"
     }
 ]
@@ -100,13 +100,11 @@ def game_loop():
             state["show_answer"] = False
             state["answers"] = {}
 
-        # Countdown
         for _ in range(13):
             time.sleep(1)
             with state["lock"]:
                 state["timer"] -= 1
 
-        # Show answer and compute scores
         with state["lock"]:
             state["show_answer"] = True
             correct = questions[state["question_index"]]["choices"][questions[state["question_index"]]["answer_index"]]
@@ -114,7 +112,7 @@ def game_loop():
                 if answer == correct:
                     state["players"][name]["score"] += 100
 
-        time.sleep(7)  # Show correct answer
+        time.sleep(7)
 
         with state["lock"]:
             state["question_index"] += 1
@@ -124,8 +122,6 @@ async def join_game(request: Request):
     data = await request.json()
     name = data.get("nickname")
     icon = data.get("icon")
-    if not name:
-        return JSONResponse(status_code=400, content={"error": "Missing nickname"})
     with state["lock"]:
         if name not in state["players"]:
             state["players"][name] = {"score": 0, "icon": icon}
@@ -173,6 +169,7 @@ def get_state():
             "question": q["question"],
             "choices": q["choices"],
             "image_url": q["image_url"],
+            "answer_index": q["answer_index"],
             "timer": state["timer"],
             "show_answer": state["show_answer"],
             "started": state["started"],
