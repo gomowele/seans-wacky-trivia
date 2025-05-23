@@ -1,68 +1,49 @@
-body {
+/* Reset some default browser styles */
+* {
   margin: 0;
-  font-family: 'Arial', sans-serif;
-  background-color: #f4f4f4;
-}
-.icon-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-  gap: 1rem;
-  padding: 1rem;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-.icon {
-  text-align: center;
+/* Set a pleasant font and smooth layout */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #fafafa;
+  color: #212121;
+  line-height: 1.6;
+}
+
+/* Basic styles for buttons across the app */
+button {
+  font-family: inherit;
+  font-size: 1rem;
   cursor: pointer;
+  border: none;
+  outline: none;
 }
 
-.icon img {
-  width: 80px;
-  height: 80px;
-  object-fit: cover;
-  border-radius: 50%;
-  border: 2px solid transparent;
-  transition: border 0.3s, transform 0.3s;
+/* Inputs consistent look */
+input {
+  font-family: inherit;
+  font-size: 1rem;
+  outline: none;
 }
 
-.icon.selected img {
-  border: 2px solid #4caf50;
-  transform: scale(1.1);
+/* Links reset */
+a {
+  text-decoration: none;
+  color: inherit;
 }
 
-.icon p {
-  margin-top: 0.5rem;
-  font-size: 0.9rem;
-}
-.icon-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-  gap: 1rem;
-  padding: 1rem;
+/* Utility: center content */
+.center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.icon {
-  text-align: center;
-  cursor: pointer;
-  padding: 0.5rem;
-  border: 2px solid transparent;
-  border-radius: 8px;
-  transition: border 0.3s, transform 0.3s;
-}
-
-.icon.selected {
-  border-color: #4caf50;
-  transform: scale(1.05);
-}
-
-.icon img {
-  width: 80px;
-  height: 80px;
-  object-fit: cover;
-  border-radius: 50%;
-}
-
-.icon p {
-  margin-top: 0.5rem;
-  font-size: 0.9rem;
-  color: #333;
+/* Full height viewport container */
+.fullscreen {
+  height: 100vh;
+  width: 100%;
 }
