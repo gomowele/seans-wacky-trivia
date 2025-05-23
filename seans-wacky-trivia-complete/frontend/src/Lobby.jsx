@@ -1,72 +1,64 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import './Lobby.css';
 
-const icons = ['🎧', '🎸', '🎤', '🎷', '🥁', '🎹', '🪕', '🎻'];
-
 export default function Lobby({ onSubmit }) {
   const [nickname, setNickname] = useState('');
-  const [icon, setIcon] = useState(icons[0]);
-  const [players, setPlayers] = useState([]);
-  const waitingMusicRef = useRef(null);
+  const [icon, setIcon] = useState('');
+  const [isJoining, setIsJoining] = useState(false);
+  const [error, setError] = useState('');
+  const lobbyMusicRef = useRef(null);
 
   useEffect(() => {
-    waitingMusicRef.current.play().catch(() => {});
-    const interval = setInterval(() => {
-      axios.get('http://localhost:10000/state').then((res) => {
-        if (res.data.started) {
-          waitingMusicRef.current.pause();
-        }
-        setPlayers(Object.entries(res.data.scores || {}).map(([name, data]) => ({ name, ...data })));
-      });
-    }, 1000);
-    return () => {
-      clearInterval(interval);
-      waitingMusicRef.current.pause();
-    };
+    lobbyMusicRef.current.play().catch(() => {});
   }, []);
 
-  const handleJoin = async () => {
-    if (!nickname.trim()) return alert('Please enter a nickname.');
-    await axios.post('http://localhost:10000/join', { nickname, icon });
-    onSubmit(nickname, icon);
+  const handleJoin = () => {
+    if (!nickname || !icon) {
+      setError('Please enter a nickname and select an icon.');
+      return;
+    }
+    setIsJoining(true);
+    axios.post('http://localhost:10000/join', { nickname, icon })
+      .then(() => {
+        onSubmit(nickname, icon);
+        lobbyMusicRef.current.pause();
+        lobbyMusicRef.current.currentTime = 0;
+      })
+      .catch((err) => {
+        setError('Failed to join game. Please try again.');
+        setIsJoining(false);
+      });
   };
 
+  const icons = ['icon1.png', 'icon2.png', 'icon3.png', 'icon4.png'];
+
   return (
-    <div className="lobby-container">
-      <audio ref={waitingMusicRef} src="/music/waiting screen.mp3" loop />
-      <h2>🎶 Welcome to Wacky Trivia! 🎶</h2>
+    <div className="lobby-container" style={{ backgroundImage: "url('/images/background.jpg')" }}>
+      <audio ref={lobbyMusicRef} src="/music/waiting screen.mp3" loop />
+      <h1>Join the Trivia Game</h1>
       <input
         type="text"
-        placeholder="Enter nickname"
+        placeholder="Enter your nickname"
         value={nickname}
         onChange={(e) => setNickname(e.target.value)}
-        className="nickname-input"
       />
-      <div className="icon-selector">
-        {icons.map((icn) => (
-          <button
-            key={icn}
+      <div className="icon-select">
+        {icons.map((icn, idx) => (
+          <img
+            key={idx}
+            src={`/avatars/${icn}`}
+            alt={`icon ${idx}`}
+            className={icon === icn ? 'selected' : ''}
             onClick={() => setIcon(icn)}
-            className={icon === icn ? 'icon-button selected' : 'icon-button'}
-          >
-            {icn}
-          </button>
+          />
         ))}
       </div>
-      <button onClick={handleJoin} className="join-button">
-        Join Game
+      {error && <div className="error">{error}</div>}
+      <button onClick={handleJoin} disabled={isJoining}>
+        {isJoining ? 'Joining...' : 'Join Game'}
       </button>
-      <div className="player-list">
-        <h3>Players in Lobby:</h3>
-        <ul>
-          {players.map((p) => (
-            <li key={p.name}>
-              {p.icon} {p.name}
-            </li>
-          ))}
-        </ul>
-      </div>
     </div>
   );
 }
