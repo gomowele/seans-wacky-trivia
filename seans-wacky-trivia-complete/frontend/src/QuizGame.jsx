@@ -22,7 +22,7 @@ export default function QuizGame({ nickname, icon, onReset }) {
   useEffect(() => {
     if (gameState) {
       setAnswersDisabled(gameState.show_answer);
-      setIsAnswered(false); // Reset answer state for each question
+      setIsAnswered(false);
 
       if (!gameState.finished) {
         questionMusicRef.current.play().catch(() => {});
