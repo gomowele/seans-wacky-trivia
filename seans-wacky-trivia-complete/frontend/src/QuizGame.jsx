@@ -37,15 +37,16 @@ export default function QuizGame({ nickname, icon, onReset }) {
   if (gameState.finished) return <GameOver leaderboard={gameState.leaderboard} onReset={onReset} />;
 
   const handleAnswer = (choice) => {
-    if (!isAnswered) {
-      setSelectedAnswer(choice);
-      setIsAnswered(true);
-      axios.post('http://localhost:10000/answer', {
-        nickname,
-        answer: choice,
-      });
-    }
-  };
+  if (!isAnswered) {
+    setSelectedAnswer(choice);
+    setIsAnswered(true);
+    axios.post('http://localhost:10000/answer', {
+      nickname,
+      answer: choice,
+    });
+  }
+};
+
 
   return (
     <div className="quiz-container">
