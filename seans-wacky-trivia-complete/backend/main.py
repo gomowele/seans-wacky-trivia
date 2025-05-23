@@ -8,7 +8,8 @@ app = FastAPI()
 
 app.add_middleware( CORSMiddleware, allow_origins=[""], allow_credentials=True, allow_methods=[""], allow_headers=["*"], )
 
-Game state
+# Game state
+
 
 state = { "players": {}, "question_index": 0, "show_answer": False, "started": False, "timer": 13, "answers": {}, "lock": threading.Lock() }
 
