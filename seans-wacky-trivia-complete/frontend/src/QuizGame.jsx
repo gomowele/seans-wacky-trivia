@@ -7,7 +7,7 @@ export default function QuizGame({ nickname, icon, onReset }) {
   const [gameState, setGameState] = useState(null);
   const [selectedAnswer, setSelectedAnswer] = useState(null);
   const [answersDisabled, setAnswersDisabled] = useState(false);
-  const [isAnswered, setIsAnswered] = useState(false); // <-- added
+  const [isAnswered, setIsAnswered] = useState(false);
   const questionMusicRef = useRef(null);
 
   useEffect(() => {
@@ -22,7 +22,7 @@ export default function QuizGame({ nickname, icon, onReset }) {
   useEffect(() => {
     if (gameState) {
       setAnswersDisabled(gameState.show_answer);
-      setIsAnswered(false); // reset on new question
+      setIsAnswered(false); // Reset answer state for each question
 
       if (!gameState.finished) {
         questionMusicRef.current.play().catch(() => {});
@@ -36,19 +36,16 @@ export default function QuizGame({ nickname, icon, onReset }) {
   if (!gameState) return <div>Loading game...</div>;
   if (gameState.finished) return <GameOver leaderboard={gameState.leaderboard} onReset={onReset} />;
 
-const handleAnswer = (choice) => {
-  if (!isAnswered) {
-    setSelectedAnswer(choice);
-    setIsAnswered(true);
-    axios.post('http://localhost:10000/answer', {
-      nickname,
-      answer: choice,
-    });
-  }
-};
-
-
-
+  const handleAnswer = (choice) => {
+    if (!isAnswered) {
+      setSelectedAnswer(choice);
+      setIsAnswered(true);
+      axios.post('http://localhost:10000/answer', {
+        nickname,
+        answer: choice,
+      });
+    }
+  };
 
   return (
     <div className="quiz-container">
@@ -62,7 +59,9 @@ const handleAnswer = (choice) => {
           <button
             key={idx}
             onClick={() => handleAnswer(choice)}
-            className={`choice-btn ${answersDisabled && idx === gameState.answer_index ? 'correct' : ''} ${selectedAnswer === choice ? 'selected' : ''}`}
+            className={`choice-btn ${
+              answersDisabled && idx === gameState.answer_index ? 'correct' : ''
+            } ${selectedAnswer === choice ? 'selected' : ''}`}
             disabled={answersDisabled || isAnswered}
           >
             {choice}
