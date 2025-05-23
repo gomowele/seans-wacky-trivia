@@ -36,7 +36,7 @@ export default function QuizGame({ nickname, icon, onReset }) {
   if (!gameState) return <div>Loading game...</div>;
   if (gameState.finished) return <GameOver leaderboard={gameState.leaderboard} onReset={onReset} />;
 
-  const handleAnswer = (choice) => {
+const handleAnswer = (choice) => {
   if (!isAnswered) {
     setSelectedAnswer(choice);
     setIsAnswered(true);
@@ -46,6 +46,7 @@ export default function QuizGame({ nickname, icon, onReset }) {
     });
   }
 };
+
 
 
   return (
