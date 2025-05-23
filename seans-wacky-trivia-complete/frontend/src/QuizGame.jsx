@@ -1,3 +1,4 @@
+// QuizGame.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import './QuizGame.css';
 
@@ -9,22 +10,26 @@ export default function QuizGame({ nickname, icon, onReset }) {
   const [score, setScore] = useState(0);
   const [hasJoined, setHasJoined] = useState(false);
   const [gameStarted, setGameStarted] = useState(false);
-  const [currentQuestionId, setCurrentQuestionId] = useState(null);
+  const [gameFinished, setGameFinished] = useState(false);
+  const [leaderboard, setLeaderboard] = useState([]);
 
-  const waitingAudio = useRef(null);
-  const questionAudio = useRef(null);
-  const leaderboardAudio = useRef(null);
+  const waitingMusicRef = useRef(null);
+  const questionMusicRef = useRef(null);
+  const leaderboardMusicRef = useRef(null);
 
   const fetchState = () => {
     fetch(`${API_BASE}/state`)
       .then(res => res.json())
       .then(data => {
-        if (data.question_id && data.question_id !== currentQuestionId) {
-          setSelectedAnswer(null);
-          setCurrentQuestionId(data.question_id);
+        if (data.finished) {
+          setGameFinished(true);
+          setLeaderboard(data.leaderboard || []);
+          stopAllMusic();
+          leaderboardMusicRef.current?.play();
+        } else {
+          setGameState(data);
+          setGameStarted(data.started);
         }
-        setGameState(data);
-        setGameStarted(data.started);
       });
   };
 
@@ -44,22 +49,27 @@ export default function QuizGame({ nickname, icon, onReset }) {
   }, []);
 
   useEffect(() => {
-    if (!hasJoined) return;
-
-    if (!gameStarted) {
-      waitingAudio.current?.play();
-      questionAudio.current?.pause();
-      leaderboardAudio.current?.pause();
-    } else if (gameState?.finished) {
-      waitingAudio.current?.pause();
-      questionAudio.current?.pause();
-      leaderboardAudio.current?.play();
+    if (!gameStarted && !gameFinished) {
+      waitingMusicRef.current?.play();
     } else {
-      waitingAudio.current?.pause();
-      leaderboardAudio.current?.pause();
-      questionAudio.current?.play();
+      waitingMusicRef.current?.pause();
+      waitingMusicRef.current.currentTime = 0;
     }
-  }, [hasJoined, gameStarted, gameState?.finished, currentQuestionId]);
+
+    if (gameStarted && !gameFinished) {
+      questionMusicRef.current?.play();
+    } else {
+      questionMusicRef.current?.pause();
+      questionMusicRef.current.currentTime = 0;
+    }
+  }, [gameStarted, gameFinished]);
+
+  const stopAllMusic = () => {
+    [waitingMusicRef, questionMusicRef, leaderboardMusicRef].forEach(ref => {
+      ref.current?.pause();
+      if (ref.current) ref.current.currentTime = 0;
+    });
+  };
 
   const handleAnswer = (choice) => {
     if (!gameState?.show_answer && selectedAnswer === null) {
@@ -77,38 +87,35 @@ export default function QuizGame({ nickname, icon, onReset }) {
   };
 
   const resetGame = () => {
-    fetch(`${API_BASE}/reset`, { method: 'POST' }).then(onReset);
+    fetch(`${API_BASE}/reset`, { method: 'POST' }).then(() => {
+      stopAllMusic();
+      onReset();
+    });
   };
 
   if (!hasJoined) {
     return (
       <div className="quiz-container">
-        <audio ref={waitingAudio} src="/music/waiting screen.mp3" loop autoPlay />
-        Joining game...
+        <h2>Joining game...</h2>
+        <audio ref={waitingMusicRef} src="/music/waiting screen.mp3" loop autoPlay />
       </div>
     );
   }
 
-  if (gameState?.finished) {
-    const leaderboard = gameState.leaderboard || [];
+  if (gameFinished) {
     return (
       <div className="quiz-container">
-        <audio ref={leaderboardAudio} src="/music/leader board.mp3" loop autoPlay />
-        <h2>🎉 Final Results</h2>
-        <div className="leaderboard">
-          <ul>
-            {leaderboard.map((player) => (
-              <li
-                key={player.name}
-                className={player.top ? 'leader top-player' : 'leader'}
-              >
-                <img src={player.icon} alt={player.name} className="avatar small" />
-                <span>{player.name}</span> – <strong>{player.score} pts</strong>
-              </li>
-            ))}
-          </ul>
-        </div>
+        <h2>Final Scores 🎉</h2>
+        <ul className="leaderboard">
+          {leaderboard.map(player => (
+            <li key={player.name} className={player.top ? 'top-player' : ''}>
+              <img src={player.icon} alt={player.name} className="avatar" />
+              {player.name}: {player.score}
+            </li>
+          ))}
+        </ul>
         <button onClick={resetGame}>Play Again</button>
+        <audio ref={leaderboardMusicRef} src="/music/leader board.mp3" loop autoPlay />
       </div>
     );
   }
@@ -116,25 +123,29 @@ export default function QuizGame({ nickname, icon, onReset }) {
   if (!gameStarted) {
     return (
       <div className="quiz-container">
-        <audio ref={waitingAudio} src="/music/waiting screen.mp3" loop autoPlay />
         <h1>Welcome, {nickname}!</h1>
         <img src={icon} alt="player" className="avatar" />
         <p>Waiting to start Sean's Wacky Trivia 🎶</p>
         <button onClick={startGame}>Start Game</button>
+        <audio ref={waitingMusicRef} src="/music/waiting screen.mp3" loop autoPlay />
       </div>
     );
   }
 
-  if (!gameState || !gameState.question) return <div className="quiz-container">Loading question...</div>;
+  if (!gameState || !gameState.question) {
+    return (
+      <div className="quiz-container">
+        <h3>Loading question...</h3>
+      </div>
+    );
+  }
 
-  const { question, choices, answer_index, image_url, show_answer, scores, question_id } = gameState;
+  const { question, choices, answer_index, image_url, show_answer, scores } = gameState;
   const correctAnswer = choices[answer_index];
   const playerScore = scores[nickname]?.score || 0;
 
   return (
     <div className="quiz-container">
-      <audio ref={questionAudio} src="/music/questions music.mp3" loop autoPlay />
-
       <div className="quiz-header">
         <img src={icon} alt="player" className="avatar" />
         <h2>{nickname}</h2>
@@ -142,7 +153,6 @@ export default function QuizGame({ nickname, icon, onReset }) {
       </div>
 
       <h3>{question}</h3>
-
       <div className="choices">
         {choices.map((choice, i) => (
           <button
@@ -154,8 +164,8 @@ export default function QuizGame({ nickname, icon, onReset }) {
                 ? choice === correctAnswer
                   ? 'correct'
                   : choice === selectedAnswer
-                  ? 'wrong'
-                  : ''
+                    ? 'wrong'
+                    : ''
                 : ''
             }
           >
@@ -183,17 +193,14 @@ export default function QuizGame({ nickname, icon, onReset }) {
           <div className="leaderboard">
             <h4>Leaderboard</h4>
             <ul>
-              {Object.entries(scores)
-                .sort((a, b) => b[1].score - a[1].score)
-                .map(([player, data]) => (
-                  <li key={player}>
-                    <img src={data.icon} alt={player} className="avatar small" /> {player}: {data.score} pts
-                  </li>
-                ))}
+              {Object.entries(scores).sort((a, b) => b[1].score - a[1].score).map(([player, data]) => (
+                <li key={player}>{player}: {data.score}</li>
+              ))}
             </ul>
           </div>
         </div>
       )}
+      <audio ref={questionMusicRef} src="/music/questions music.mp3" loop autoPlay />
     </div>
   );
 }
